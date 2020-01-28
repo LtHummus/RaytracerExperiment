@@ -1,5 +1,7 @@
 package com.lthummus.raytracer.primitive
 
+import org.scalactic.Equality
+
 case class Matrix(rows: Array[Array[Double]]) {
   val size: Int = rows.length
   if (!rows.forall(_.length == size)) {
@@ -50,6 +52,56 @@ case class Matrix(rows: Array[Array[Double]]) {
 
   def transpose: Matrix = {
     Matrix((for (c <- 0 until size) yield col(c)).toArray)
+  }
+
+  def determinant: Double = {
+    if (size == 2) {
+      apply(0, 0) * apply(1, 1) - apply(0, 1) * apply(1, 0)
+    } else {
+      (for (c <- 0 until size) yield {
+        apply(0, c) * cofactor(0, c)
+      }).sum
+    }
+  }
+
+  def submatrix(r: Int, c: Int): Matrix = {
+    val newElements = rows.zipWithIndex.filter(_._2 != r).map(_._1).map { col =>
+      col.zipWithIndex.filter(_._2 != c).map(_._1)
+    }
+
+    Matrix(newElements)
+  }
+
+  def minor(r: Int, c: Int): Double = submatrix(r, c).determinant
+  def cofactor(r: Int, c: Int): Double = {
+    val factor = if ((r + c) % 2 == 0) 1 else -1
+    minor(r, c) * factor
+  }
+
+  def isInvertible: Boolean = determinant != 0
+
+  def inverted: Matrix = {
+    if (!isInvertible)
+      throw new IllegalArgumentException("Matrix is not invertible")
+
+    val d = determinant
+    val cofactors = for {
+      r <- 0 until size
+      c <- 0 until size
+    } yield {
+      cofactor(c, r)  //switch arguments to transpose
+    }
+
+    Matrix(cofactors.map(_ / d))
+  }
+
+  private[primitive] def tolerantEqual(that: Matrix)(implicit tolerance: Equality[Double]): Boolean = {
+    this.size == that.size && {
+      val pairs = this.rows.zip(that.rows)
+      pairs.forall{ case (a, b) =>
+        a.zip(b).forall { case (c, d) => tolerance.areEqual(c, d) }
+      }
+    }
   }
 
   override def equals(obj: Any): Boolean = {

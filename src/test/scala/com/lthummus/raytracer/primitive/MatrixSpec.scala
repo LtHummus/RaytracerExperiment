@@ -1,9 +1,14 @@
 package com.lthummus.raytracer.primitive
 
+import org.scalactic.TolerantNumerics
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 
 class MatrixSpec extends AnyFlatSpec with Matchers {
+  private val epilson = 1e-4d
+
+  implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(epilson)
+
   "Matrix" should "properly construct" in {
     val m = Matrix(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
 
@@ -157,5 +162,170 @@ class MatrixSpec extends AnyFlatSpec with Matchers {
 
   it should "correctly realize that transposing the identity matrix is the identity matrix" in {
     Matrix.Identity4.transpose mustBe Matrix.Identity4
+  }
+
+  it should "compute the determinant of a 2x2 matrix" in {
+    val m = Matrix(1, 5, -3, 2)
+    m.determinant mustBe 17
+  }
+
+  it should "handle making a submatrix" in {
+    val m = Matrix(1, 5, 0, -3, 2, 7, 0, 6, -3)
+    val correct = Matrix(-3, 2, 0, 6)
+
+    m.submatrix(0, 2) mustBe correct
+  }
+
+  it should "handle making a submatrix from a 4x4 matrix" in {
+    val m = Matrix(-6, 1, 1, 6, -8, 5, 8, 6, -1, 0, 8, 2, -7, 1, -1, 1)
+    val correct = Matrix(-6, 1, 6, -8, 8, 6, -7, -1, 1)
+
+    m.submatrix(2, 1) mustBe correct
+  }
+
+  it should "handle making minors" in {
+    val m = Matrix(3, 5, 0, 2, -1, -7, 6, -1, 5)
+    val sub = m.submatrix(1, 0)
+
+    sub.determinant mustBe 25
+    m.minor(1, 0) mustBe 25
+  }
+
+  it should "handle cofactors" in {
+    val m = Matrix(3, 5, 0, 2, -1, -7, 6, -1, 5)
+
+    m.minor(0, 0) mustBe -12
+    m.cofactor(0, 0) mustBe -12
+    m.minor(1, 0) mustBe 25
+    m.cofactor(1, 0) mustBe -25
+  }
+
+  it should "handle determinants of a 3x3 matrix" in {
+    val m = Matrix(1, 2, 6, -5, 8, -4, 2, 6, 4)
+
+    m.cofactor(0, 0) mustBe 56
+    m.cofactor(0, 1) mustBe 12
+    m.cofactor(0, 2) mustBe -46
+    m.determinant mustBe -196
+  }
+
+  it should "handle determinants of a 4x4 matrix" in {
+    val m = Matrix(-2, -8, 3, 5, -3, 1, 7, 3, 1, 2, -9, 6, -6, 7, 7, -9)
+
+    m.cofactor(0, 0) mustBe 690
+    m.cofactor(0, 1) mustBe 447
+    m.cofactor(0, 2) mustBe 210
+    m.cofactor(0, 3) mustBe 51
+    m.determinant mustBe -4071
+  }
+
+  it should "properly determine invertibility" in {
+    val a = Matrix(6, 4, 4, 4, 5, 5, 7, 6, 4, -9, 3, -7, 9, 1, 7, -6)
+    val b = Matrix(-4, 2, -2, -3, 9, 6, 2, 6, 0, -5, 1, -5, 0, 0, 0, 0)
+
+    a.determinant mustBe -2120
+    b.determinant mustBe 0
+
+    a.isInvertible mustBe true
+    b.isInvertible mustBe false
+
+  }
+
+  it should "properly invert a matrix" in {
+    val m = Matrix(-5,  2,  6, -8,
+                    1, -5,  1,  8,
+                    7,  7, -6, -7,
+                    1, -3,  7,  4)
+    val i = m.inverted
+
+    m.determinant mustBe 532
+    m.isInvertible mustBe true
+
+    m.cofactor(2, 3) mustBe -160
+    m.cofactor(3, 2) mustBe 105
+
+    i(3, 2) mustBe -160d/532
+    i(2, 3) mustBe 105d/532
+
+    assert(i(0, 0) ===  0.21805)
+    assert(i(0, 1) ===  0.45113)
+    assert(i(0, 2) ===  0.24060)
+    assert(i(0, 3) === -0.04511)
+
+    assert(i(1, 0) === -0.80827)
+    assert(i(1, 1) === -1.45677)
+    assert(i(1, 2) === -0.44361)
+    assert(i(1, 3) ===  0.52068)
+
+    assert(i(2, 0) === -0.07895)
+    assert(i(2, 1) === -0.22368)
+    assert(i(2, 2) === -0.05263)
+    assert(i(2, 3) ===  0.19737)
+
+    assert(i(3, 0) === -0.52256)
+    assert(i(3, 1) === -0.81391)
+    assert(i(3, 2) === -0.30075)
+    assert(i(3, 3) ===  0.30639)
+
+  }
+
+  it should "invert another matrix" in {
+    val m = Matrix(8, -5, 9, 2, 7, 5, 6, 1, -6, 0, 9, 6, -3, 0, -9, -4)
+    val i = m.inverted
+
+    assert(i(0, 0) === -0.15385)
+    assert(i(0, 1) === -0.15385)
+    assert(i(0, 2) === -0.28205)
+    assert(i(0, 3) === -0.53846)
+
+    assert(i(1, 0) === -0.07692)
+    assert(i(1, 1) ===  0.12308)
+    assert(i(1, 2) ===  0.02564)
+    assert(i(1, 3) ===  0.03077)
+
+    assert(i(2, 0) ===  0.35897)
+    assert(i(2, 1) ===  0.35897)
+    assert(i(2, 2) ===  0.43590)
+    assert(i(2, 3) ===  0.92308)
+
+    assert(i(3, 0) === -0.69231)
+    assert(i(3, 1) === -0.69231)
+    assert(i(3, 2) === -0.76923)
+    assert(i(3, 3) === -1.92308)
+  }
+
+  it should "invert a third matrix" in {
+    val m = Matrix(9, 3, 0, 9, -5, -2, -6, -3, -4, 9, 6, 4, -7, 6, 6, 2)
+    val i = m.inverted
+
+    assert(i(0, 0) === -0.04074)
+    assert(i(0, 1) === -0.07778)
+    assert(i(0, 2) ===  0.14444)
+    assert(i(0, 3) === -0.22222)
+
+    assert(i(1, 0) === -0.07778)
+    assert(i(1, 1) ===  0.03333)
+    assert(i(1, 2) ===  0.36667)
+    assert(i(1, 3) === -0.33333)
+
+    assert(i(2, 0) === -0.02901)
+    assert(i(2, 1) === -0.14630)
+    assert(i(2, 2) === -0.10926)
+    assert(i(2, 3) ===  0.12963)
+
+    assert(i(3, 0) ===  0.17778)
+    assert(i(3, 1) ===  0.06667)
+    assert(i(3, 2) === -0.26667)
+    assert(i(3, 3) ===  0.33333)
+  }
+
+  it should "ensure that matrix multiplication with inverses work as expected" in {
+    val m = Matrix(3, -9, 7, 3, 3, -8, 2, -9, -4, 4, 4, 1, -6, 5, -1, 1)
+    val n = Matrix(8, 2, 2, 2, 3, -1, 7, 0, 7, 0, 5, 4, 6, -2, 0, 5)
+
+    val o = m * n
+    val p = o * n.inverted
+
+    assert(p.tolerantEqual(m))
   }
 }
