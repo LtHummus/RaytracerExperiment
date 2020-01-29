@@ -1,5 +1,7 @@
 package com.lthummus.raytracer.primitive
 
+import org.scalactic.Equality
+
 case class Tuple(x: Double, y: Double, z: Double, w: Double) {
   def isPoint: Boolean = w == 1.0d
   def isVector: Boolean = w == 0.0d
