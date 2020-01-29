@@ -4,7 +4,7 @@ import com.lthummus.raytracer.shapes.Sphere
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 
-class IntersectionList extends AnyFlatSpec with Matchers {
+class IntersectionListSpec extends AnyFlatSpec with Matchers {
 
   "IntersectionList" should "be able to identify hits" in {
     val s = Sphere()
