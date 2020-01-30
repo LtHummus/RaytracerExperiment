@@ -183,24 +183,5 @@ class SphereSpec extends AnyFlatSpec with Matchers with TolerantEquality {
     n.normalized mustBe n
   }
 
-  "reflection vectors" should "calculate at a 45 degree angle" in {
-    val v = Vec(1, -1, 0)
-    val n = Vec(0, 1, 0)
-
-    reflectVector(v, n) mustBe Vec(1, 1, 0)
-  }
-
-  it should "calculate at an arbitrary angle" in {
-    val rootTwoOverTwo = Math.sqrt(2) / 2
-
-    val v = Vec(0, -1, 0)
-    val n = Vec(rootTwoOverTwo, rootTwoOverTwo, 0)
-
-    val r = reflectVector(v, n)
-
-    assert(r === Vec(1, 0, 0))
-
-  }
-
 
 }

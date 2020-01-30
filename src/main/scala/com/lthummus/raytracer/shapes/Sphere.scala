@@ -15,7 +15,7 @@ case class Sphere(var transformation: Matrix = Matrix.Identity4, var material: S
     worldNormal.copy(w = 0).normalized
   }
 
-  def reflect(p: Tuple): Tuple = reflectVector(p, normal(p))
+  def reflect(p: Tuple): Tuple = p.reflectVector(normal(p))
 
   def intersections(r: Ray): Seq[Intersection] = {
     val r2 = r.transform(transformation.inverted)

@@ -2,7 +2,6 @@ package com.lthummus.raytracer.material
 
 import com.lthummus.raytracer.lights.PointLight
 import com.lthummus.raytracer.primitive.{Color, Tuple}
-import com.lthummus.raytracer.util.Utils
 
 case class SimpleMaterial(color: Color, ambient: Double, diffuse: Double, specular: Double, shininess: Double) {
   def lighting(light: PointLight, pos: Tuple, eyeVector: Tuple, normalVector: Tuple): Color = {
@@ -17,7 +16,7 @@ case class SimpleMaterial(color: Color, ambient: Double, diffuse: Double, specul
       (Color.Black, Color.Black)
     } else {
       val diffuseContrib = effectiveColor * diffuse * lightDotNormal
-      val reflectVector = Utils.reflectVector(-lightVector, normalVector)
+      val reflectVector = -lightVector.reflectVector(normalVector)
       val reflectDotEye = reflectVector dot eyeVector
 
       val specularContrib = if (reflectDotEye <= 0) {
