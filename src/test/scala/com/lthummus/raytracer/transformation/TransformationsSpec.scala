@@ -1,7 +1,7 @@
 package com.lthummus.raytracer.transformation
 
 import com.lthummus.raytracer.{SpecConstants, TolerantEquality}
-import com.lthummus.raytracer.primitive.{Point, Vec}
+import com.lthummus.raytracer.primitive.{Matrix, Point, Vec}
 import com.lthummus.raytracer.tools.Transformations
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
@@ -163,6 +163,47 @@ class TransformationsSpec extends AnyFlatSpec with Matchers with TolerantEqualit
 
     val t = c * b * a
     t * p mustBe Point(15, 0, 7)
+  }
+
+  "view transformation" should "figure out the matrix for default orientation" in {
+    val from = Point(0, 0, 0)
+    val to = Point(0, 0, -1)
+    val up = Vec(0, 1, 0)
+
+    Transformations.viewTransform(from, to, up) mustBe Matrix.Identity4
+  }
+
+  it should "work when looking at the positive z direction" in {
+    val from = Point(0, 0, 0)
+    val to = Point(0, 0, 1)
+    val up = Vec(0, 1, 0)
+
+    Transformations.viewTransform(from, to, up) mustBe Transformations.scale(-1, 1, -1) //up-down same, left-right & front-back flipped
+  }
+
+  it should "move the world" in {
+    val from = Point(0, 0, 8)
+    val to = Point(0, 0, 0)
+    val up = Vec(0, 1, 0)
+
+    Transformations.viewTransform(from, to, up) mustBe Transformations.translation(0, 0, -8)
+  }
+
+  it should "work on arbitrary transformations" in {
+    val from = Point(1, 3, 2)
+    val to = Point(4, -2, 8)
+    val up = Vec(1, 1, 0)
+
+    val t = Transformations.viewTransform(from, to, up)
+
+    val correct = Matrix(
+      -0.50709,  0.50709,  0.67612, -2.36643,
+       0.76772,  0.60609,  0.12122, -2.82843,
+      -0.35857,  0.59761, -0.71714,  0.00000,
+       0.00000,  0.00000,  0.00000,  1.00000
+    )
+
+    assert(t === correct)
   }
 
 }

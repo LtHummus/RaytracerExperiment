@@ -1,6 +1,6 @@
 package com.lthummus.raytracer.tools
 
-import com.lthummus.raytracer.primitive.Matrix
+import com.lthummus.raytracer.primitive.{Matrix, Tuple}
 
 object Transformations {
 
@@ -56,5 +56,21 @@ object Transformations {
       zx, zy, 1, 0,
       0, 0, 0, 1
     )
+  }
+
+  def viewTransform(from: Tuple, to: Tuple, up: Tuple): Matrix = {
+    val forward = (to - from).normalized
+    val normalizedUp = up.normalized
+    val left = forward x normalizedUp
+    val trueUp = left x forward
+
+    val orientation = Matrix(
+      left.x, left.y, left.z, 0,
+      trueUp.x, trueUp.y, trueUp.z, 0,
+      -forward.x, -forward.y, -forward.z, 0,
+      0, 0, 0, 1
+    )
+
+    orientation * translation(-from.x, -from.y, -from.z)
   }
 }

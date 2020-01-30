@@ -1,6 +1,6 @@
 package com.lthummus.raytracer
 
-import com.lthummus.raytracer.primitive.{Color, Tuple}
+import com.lthummus.raytracer.primitive.{Color, Matrix, Tuple}
 import org.scalactic.{Equality, TolerantNumerics}
 
 trait TolerantEquality {
@@ -26,6 +26,18 @@ trait TolerantEquality {
           doubleEquality.areEqual(a.green, rhs.green) &&
           doubleEquality.areEqual(a.blue, rhs.blue)
       case _ => false
+    }
+  }
+
+  implicit val matrixEquality = new Equality[Matrix] {
+    override def areEqual(a: Matrix, b: Any): Boolean = b match {
+      case that: Matrix =>
+        a.size == that.size && {
+          val rowPairs = a.rows.zip(that.rows)
+          rowPairs.forall{ case (r1, r2) =>
+            r1.zip(r2).forall { case (c, d) => doubleEquality.areEqual(c, d) }
+          }
+        }
     }
   }
 }
