@@ -3,7 +3,7 @@ package com.lthummus.raytracer.world
 import com.lthummus.raytracer.camera.SimpleCamera
 import com.lthummus.raytracer.lights.PointLight
 import com.lthummus.raytracer.material.SimpleMaterial
-import com.lthummus.raytracer.primitive.{Color, Intersection, IntersectionInformation, Matrix, Point}
+import com.lthummus.raytracer.primitive.{Color, Intersection, IntersectionInformation, Matrix, Point, Tuple}
 import com.lthummus.raytracer.rays.Ray
 import com.lthummus.raytracer.shapes.Sphere
 import com.lthummus.raytracer.tools.Transformations
@@ -23,7 +23,7 @@ case class World(private val objectList: mutable.ArrayBuffer[Sphere], private va
   }
 
   def shadeHit(info: IntersectionInformation): Color = {
-    info.obj.material.lighting(lightSource.get, info.point, info.eyeVector, info.normalVector)
+    info.obj.material.lighting(lightSource.get, info.point, info.eyeVector, info.normalVector, isShadowed(info.overPoint))
   }
 
   def colorAt(ray: Ray): Color = {
@@ -33,6 +33,15 @@ case class World(private val objectList: mutable.ArrayBuffer[Sphere], private va
       case None      => Color.Black //ray doesn't hit anything
       case Some(hit) => shadeHit(hit.prepareComputation(ray))
     }
+  }
+
+  def isShadowed(p: Tuple): Boolean = {
+    val v = lightSource.get.pos - p
+    val distance = v.magnitude
+    val direction = v.normalized
+
+    val r = Ray(p, direction)
+    intersections(r).hit.exists(_.t < distance)
   }
 }
 

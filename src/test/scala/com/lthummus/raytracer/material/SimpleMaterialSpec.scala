@@ -28,7 +28,7 @@ class SimpleMaterialSpec extends AnyFlatSpec with Matchers with TolerantEquality
     val eyeVector = Vec(0, 0, -1)
     val normalVector = Vec(0, 0, -1)
 
-    val r = m.lighting(light, pos, eyeVector, normalVector)
+    val r = m.lighting(light, pos, eyeVector, normalVector, inShadow = false)
 
     r mustBe Color(1.9, 1.9, 1.9)
   }
@@ -41,7 +41,7 @@ class SimpleMaterialSpec extends AnyFlatSpec with Matchers with TolerantEquality
     val eyeVector = Vec(0, HalfRootTwo, -HalfRootTwo)
     val normalVector = Vec(0, 0, -1)
 
-    val r = m.lighting(light, pos, eyeVector, normalVector)
+    val r = m.lighting(light, pos, eyeVector, normalVector, inShadow = false)
 
     r mustBe Color(1, 1, 1)
   }
@@ -54,7 +54,7 @@ class SimpleMaterialSpec extends AnyFlatSpec with Matchers with TolerantEquality
     val eyeVector = Vec(0, 0, -1)
     val normalVector = Vec(0, 0, -1)
 
-    val r = m.lighting(light, pos, eyeVector, normalVector)
+    val r = m.lighting(light, pos, eyeVector, normalVector, inShadow = false)
 
     assert(r === Color(0.73639, 0.73639, 0.73639))
   }
@@ -68,7 +68,7 @@ class SimpleMaterialSpec extends AnyFlatSpec with Matchers with TolerantEquality
     val eyeVector = Vec(0, -HalfRootTwo, -HalfRootTwo)
     val normalVector = Vec(0, 0, -1)
 
-    val r = m.lighting(light, pos, eyeVector, normalVector)
+    val r = m.lighting(light, pos, eyeVector, normalVector, inShadow = false)
 
     assert(r === Color(1.636396, 1.636396, 1.636396))
   }
@@ -81,8 +81,18 @@ class SimpleMaterialSpec extends AnyFlatSpec with Matchers with TolerantEquality
     val eyeVector = Vec(0, 0, -1)
     val normalVector = Vec(0, 0, -1)
 
-    val r = m.lighting(light, pos, eyeVector, normalVector)
+    val r = m.lighting(light, pos, eyeVector, normalVector, inShadow = false)
 
     r mustBe Color(0.1, 0.1, 0.1)
+  }
+
+  it should "handle surface in shadow" in {
+    val eyeVector = Vec(0, 0, -1)
+    val normalVector = Vec(0, 0, -1)
+    val light = PointLight(Point(0, 0, -10), Color(1, 1, 1))
+
+    val r = SimpleMaterial.Default.lighting(light, Point.Origin, eyeVector, normalVector, inShadow = true)
+
+    assert(r === Color(0.1, 0.1, 0.1))
   }
 }
