@@ -80,7 +80,7 @@ case class Matrix(rows: Array[Array[Double]]) {
 
   def isInvertible: Boolean = determinant != 0
 
-  def inverted: Matrix = {
+  lazy val inverted: Matrix = {
     if (!isInvertible)
       throw new IllegalArgumentException("Matrix is not invertible")
 

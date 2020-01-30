@@ -1,7 +1,6 @@
 package com.lthummus.raytracer.rays
 
-import com.lthummus.raytracer.primitive.{Intersection, Point, Vec}
-import com.lthummus.raytracer.shapes.Sphere
+import com.lthummus.raytracer.primitive.{Point, Vec}
 import com.lthummus.raytracer.tools.Transformations
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers

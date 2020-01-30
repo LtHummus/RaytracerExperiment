@@ -1,16 +1,12 @@
 package com.lthummus.raytracer.primitive
 
-import com.lthummus.raytracer.primitive
+import com.lthummus.raytracer.{TolerantEquality, primitive}
 import com.lthummus.raytracer.primitive.{Point, Tuple, Vec}
 import org.scalactic.TolerantNumerics
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 
-class TupleSpec extends AnyFlatSpec with Matchers {
-
-  private val epilson = 1e-4d
-
-  implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(epilson)
+class TupleSpec extends AnyFlatSpec with Matchers with TolerantEquality {
 
   "Tuples" should "identify as a point or vector properly" in {
     val point = Point(1, 2, 3)

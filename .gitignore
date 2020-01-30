@@ -72,3 +72,5 @@ application.conf
 questions.csv
 
 *.p12
+*.ppm
+*.png

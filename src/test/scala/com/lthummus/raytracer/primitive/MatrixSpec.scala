@@ -1,13 +1,11 @@
 package com.lthummus.raytracer.primitive
 
+import com.lthummus.raytracer.TolerantEquality
 import org.scalactic.TolerantNumerics
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 
-class MatrixSpec extends AnyFlatSpec with Matchers {
-  private val epilson = 1e-4d
-
-  implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(epilson)
+class MatrixSpec extends AnyFlatSpec with Matchers with TolerantEquality {
 
   "Matrix" should "properly construct" in {
     val m = Matrix(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)

@@ -1,16 +1,10 @@
 package com.lthummus.raytracer.primitive
 
-import com.lthummus.raytracer.primitive
-import com.lthummus.raytracer.primitive.Color
-import org.scalactic.TolerantNumerics
+import com.lthummus.raytracer.TolerantEquality
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 
-class ColorSpec extends AnyFlatSpec with Matchers {
-
-  private val epilson = 1e-4d
-
-  implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(epilson)
+class ColorSpec extends AnyFlatSpec with Matchers with TolerantEquality {
 
   "Color" should "properly construct" in {
     val c = Color(1.1, 2.2, 3.3)

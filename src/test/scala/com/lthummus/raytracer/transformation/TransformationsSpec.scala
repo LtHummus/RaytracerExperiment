@@ -1,26 +1,14 @@
 package com.lthummus.raytracer.transformation
 
-import com.lthummus.raytracer.primitive.{Point, Tuple, Vec}
+import com.lthummus.raytracer.TolerantEquality
+import com.lthummus.raytracer.primitive.{Point, Vec}
 import com.lthummus.raytracer.tools.Transformations
-import org.scalactic.{Equality, TolerantNumerics}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 
-class TransformationsSpec extends AnyFlatSpec with Matchers {
-
+class TransformationsSpec extends AnyFlatSpec with Matchers with TolerantEquality {
   private val HalfSqrtTwo = Math.sqrt(2) / 2
-  private val epilson = 1e-4d
 
-  implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(epilson)
-  implicit val tupleEquality = new Equality[Tuple] {
-    override def areEqual(a: Tuple, b: Any): Boolean = b match {
-      case rhs: Tuple =>
-        doubleEquality.areEqual(a.x, rhs.x) &&
-          doubleEquality.areEqual(a.y, rhs.y) &&
-          doubleEquality.areEqual(a.z, rhs.z) &&
-          doubleEquality.areEqual(a.w, rhs.w)
-    }
-  }
 
   "Translation" should "produce a proper translation matrix" in {
     val t = Transformations.translation(5, -3, 2)

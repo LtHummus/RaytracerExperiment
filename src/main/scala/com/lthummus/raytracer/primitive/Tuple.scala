@@ -37,6 +37,8 @@ object Tuple {
 }
 
 object Point {
+  val Origin: Tuple = Point(0, 0, 0)
+
   def apply(x: Double, y: Double, z: Double): Tuple = {
     Tuple(x, y, z, 1.0d)
   }

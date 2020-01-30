@@ -1,10 +1,22 @@
 package com.lthummus.raytracer.shapes
 
-import com.lthummus.raytracer.primitive.{Intersection, Matrix, Point}
+import com.lthummus.raytracer.material.SimpleMaterial
+import com.lthummus.raytracer.primitive.{Intersection, Matrix, Point, Tuple, Vec}
 import com.lthummus.raytracer.rays.Ray
 
-//placeholder for now
-case class Sphere(var transformation: Matrix = Matrix.Identity4) {
+case class Sphere(var transformation: Matrix = Matrix.Identity4, var material: SimpleMaterial = SimpleMaterial.Default) {
+
+  def normal(p: Tuple): Tuple = {
+    require(p.isPoint)
+
+    val objectPoint = transformation.inverted * p
+    val objectNormal = objectPoint - Point(0, 0, 0)
+    val worldNormal = transformation.inverted.transpose * objectNormal
+    worldNormal.copy(w = 0).normalized
+  }
+
+  def reflect(p: Tuple): Tuple = reflectVector(p, normal(p))
+
   def intersections(r: Ray): Seq[Intersection] = {
     val r2 = r.transform(transformation.inverted)
     val sphereToRay = r2.origin - Point(0, 0, 0)
