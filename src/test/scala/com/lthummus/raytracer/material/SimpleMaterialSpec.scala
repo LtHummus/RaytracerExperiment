@@ -1,12 +1,12 @@
 package com.lthummus.raytracer.material
 
-import com.lthummus.raytracer.TolerantEquality
+import com.lthummus.raytracer.{SpecConstants, TolerantEquality}
 import com.lthummus.raytracer.lights.PointLight
 import com.lthummus.raytracer.primitive.{Color, Point, Vec}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 
-class SimpleMaterialSpec extends AnyFlatSpec with Matchers with TolerantEquality {
+class SimpleMaterialSpec extends AnyFlatSpec with Matchers with TolerantEquality with SpecConstants {
 
   "SimpleMaterial" should "construct properly" in {
     val c = Color(1, 1, 1)
@@ -36,10 +36,9 @@ class SimpleMaterialSpec extends AnyFlatSpec with Matchers with TolerantEquality
   it should "calculate with eye between light and surface, 45 degrees off normal" in {
     val m = SimpleMaterial.Default
     val pos = Point.Origin
-    val rootTwoOverTwo = Math.sqrt(2) / 2
 
     val light = PointLight(Point(0, 0, -10), Color.White)
-    val eyeVector = Vec(0, rootTwoOverTwo, -rootTwoOverTwo)
+    val eyeVector = Vec(0, HalfRootTwo, -HalfRootTwo)
     val normalVector = Vec(0, 0, -1)
 
     val r = m.lighting(light, pos, eyeVector, normalVector)
@@ -63,11 +62,10 @@ class SimpleMaterialSpec extends AnyFlatSpec with Matchers with TolerantEquality
   it should "calculate with eye in path of reflection" in {
     val m = SimpleMaterial.Default
     val pos = Point.Origin
-    val rootTwoOverTwo = Math.sqrt(2) / 2
 
 
     val light = PointLight(Point(0, 10, -10), Color.White)
-    val eyeVector = Vec(0, -rootTwoOverTwo, -rootTwoOverTwo)
+    val eyeVector = Vec(0, -HalfRootTwo, -HalfRootTwo)
     val normalVector = Vec(0, 0, -1)
 
     val r = m.lighting(light, pos, eyeVector, normalVector)

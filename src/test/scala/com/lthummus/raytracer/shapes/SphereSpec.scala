@@ -1,6 +1,6 @@
 package com.lthummus.raytracer.shapes
 
-import com.lthummus.raytracer.TolerantEquality
+import com.lthummus.raytracer.{SpecConstants, TolerantEquality}
 import com.lthummus.raytracer.material.SimpleMaterial
 import com.lthummus.raytracer.primitive.{Intersection, Matrix, Point, Vec}
 import com.lthummus.raytracer.rays.Ray
@@ -8,7 +8,7 @@ import com.lthummus.raytracer.tools.Transformations
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 
-class SphereSpec extends AnyFlatSpec with Matchers with TolerantEquality {
+class SphereSpec extends AnyFlatSpec with Matchers with TolerantEquality with SpecConstants {
 
   "Sphere" should "have a default transformation" in {
     val s = Sphere()
@@ -150,17 +150,15 @@ class SphereSpec extends AnyFlatSpec with Matchers with TolerantEquality {
   }
 
   it should "calculate properly at some nonaxial point" in {
-    val rootThreeOverThree = Math.sqrt(3) / 3
     val s = Sphere()
-    val n = s.normal(Point(rootThreeOverThree, rootThreeOverThree, rootThreeOverThree))
+    val n = s.normal(Point(RootThreeOverThree, RootThreeOverThree, RootThreeOverThree))
 
-    n mustBe Vec(rootThreeOverThree, rootThreeOverThree, rootThreeOverThree)
+    n mustBe Vec(RootThreeOverThree, RootThreeOverThree, RootThreeOverThree)
   }
 
   it should "return a normalized vector" in {
-    val rootThreeOverThree = Math.sqrt(3) / 3
     val s = Sphere()
-    val n = s.normal(Point(rootThreeOverThree, rootThreeOverThree, rootThreeOverThree))
+    val n = s.normal(Point(RootThreeOverThree, RootThreeOverThree, RootThreeOverThree))
 
     n.normalized mustBe n
   }
@@ -173,11 +171,10 @@ class SphereSpec extends AnyFlatSpec with Matchers with TolerantEquality {
   }
 
   it should "work on multiple transformations" in {
-    val rootTwoOverTwo = Math.sqrt(2) / 2
     val t = Transformations.scale(1, 0.5, 1) * Transformations.rotateZ(Math.PI / 5)
     val s = Sphere(t)
 
-    val n = s.normal(Point(0, rootTwoOverTwo, -rootTwoOverTwo))
+    val n = s.normal(Point(0, HalfRootTwo, -HalfRootTwo))
 
     assert(n === Vec(0, 0.9701425, -0.2425356))
     n.normalized mustBe n

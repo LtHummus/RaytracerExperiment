@@ -1,12 +1,12 @@
 package com.lthummus.raytracer.rays
 
-import com.lthummus.raytracer.TolerantEquality
+import com.lthummus.raytracer.{SpecConstants, TolerantEquality}
 import com.lthummus.raytracer.primitive.{Point, Vec}
 import com.lthummus.raytracer.tools.Transformations
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 
-class RaySpec extends AnyFlatSpec with Matchers with TolerantEquality {
+class RaySpec extends AnyFlatSpec with Matchers with TolerantEquality with SpecConstants {
 
   "Ray" should "properly construct" in {
     val p = Point(1, 2, 3)
@@ -76,10 +76,8 @@ class RaySpec extends AnyFlatSpec with Matchers with TolerantEquality {
   }
 
   it should "calculate at an arbitrary angle" in {
-    val rootTwoOverTwo = Math.sqrt(2) / 2
-
     val v = Vec(0, -1, 0)
-    val n = Vec(rootTwoOverTwo, rootTwoOverTwo, 0)
+    val n = Vec(HalfRootTwo, HalfRootTwo, 0)
 
     val r = v.reflectVector(n)
 

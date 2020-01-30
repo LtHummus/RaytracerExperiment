@@ -1,14 +1,12 @@
 package com.lthummus.raytracer.transformation
 
-import com.lthummus.raytracer.TolerantEquality
+import com.lthummus.raytracer.{SpecConstants, TolerantEquality}
 import com.lthummus.raytracer.primitive.{Point, Vec}
 import com.lthummus.raytracer.tools.Transformations
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 
-class TransformationsSpec extends AnyFlatSpec with Matchers with TolerantEquality {
-  private val HalfSqrtTwo = Math.sqrt(2) / 2
-
+class TransformationsSpec extends AnyFlatSpec with Matchers with TolerantEquality with SpecConstants {
 
   "Translation" should "produce a proper translation matrix" in {
     val t = Transformations.translation(5, -3, 2)
@@ -65,7 +63,7 @@ class TransformationsSpec extends AnyFlatSpec with Matchers with TolerantEqualit
     val halfQuarter = Transformations.rotateX(Math.PI / 4)
     val fullQuarter = Transformations.rotateX(Math.PI / 2)
 
-    assert(halfQuarter * p === Point(0, HalfSqrtTwo, HalfSqrtTwo))
+    assert(halfQuarter * p === Point(0, HalfRootTwo, HalfRootTwo))
     assert(fullQuarter * p === Point(0, 0, 1))
 
   }
@@ -74,7 +72,7 @@ class TransformationsSpec extends AnyFlatSpec with Matchers with TolerantEqualit
     val p = Point(0, 1, 0)
     val halfQuarter = Transformations.rotateX(Math.PI / 4)
 
-    assert(halfQuarter.inverted * p === Point(0, HalfSqrtTwo, -HalfSqrtTwo))
+    assert(halfQuarter.inverted * p === Point(0, HalfRootTwo, -HalfRootTwo))
   }
 
   "rotation around Y" should "handle a couple rotations" in {
@@ -83,7 +81,7 @@ class TransformationsSpec extends AnyFlatSpec with Matchers with TolerantEqualit
     val halfQuarter = Transformations.rotateY(Math.PI / 4)
     val fullQuarter = Transformations.rotateY(Math.PI / 2)
 
-    assert(halfQuarter * p === Point(HalfSqrtTwo, 0, HalfSqrtTwo))
+    assert(halfQuarter * p === Point(HalfRootTwo, 0, HalfRootTwo))
     assert(fullQuarter * p === Point(1, 0, 0))
   }
 
@@ -93,7 +91,7 @@ class TransformationsSpec extends AnyFlatSpec with Matchers with TolerantEqualit
     val halfQuarter = Transformations.rotateZ(Math.PI / 4)
     val fullQuarter = Transformations.rotateZ(Math.PI / 2)
 
-    assert(halfQuarter * p === Point(-HalfSqrtTwo, HalfSqrtTwo, 0))
+    assert(halfQuarter * p === Point(-HalfRootTwo, HalfRootTwo, 0))
     assert(fullQuarter * p === Point(-1, 0, 0))
   }
 
