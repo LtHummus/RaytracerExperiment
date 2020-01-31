@@ -5,18 +5,18 @@ import com.lthummus.raytracer.lights.PointLight
 import com.lthummus.raytracer.material.SimpleMaterial
 import com.lthummus.raytracer.primitive.{Color, Intersection, IntersectionInformation, Matrix, Point, Tuple}
 import com.lthummus.raytracer.rays.Ray
-import com.lthummus.raytracer.shapes.Sphere
+import com.lthummus.raytracer.shapes.{Shape, Sphere}
 import com.lthummus.raytracer.tools.Transformations
 
 import scala.collection.mutable
 
 
 //todo: should light source be singular? might as well add support for multiple lights...
-case class World(private val objectList: mutable.ArrayBuffer[Sphere], private var lightSource: Option[PointLight]) {
+case class World(private val objectList: mutable.ArrayBuffer[Shape], private var lightSource: Option[PointLight]) {
 
   def objectCount: Int = objectList.length
   def light: Option[PointLight] = lightSource
-  def objects: Seq[Sphere] = objectList.toSeq
+  def objects: Seq[Shape] = objectList.toSeq
 
   def intersections(ray: Ray): Seq[Intersection] = {
     objects.flatMap(_.intersections(ray)).sorted
@@ -46,7 +46,7 @@ case class World(private val objectList: mutable.ArrayBuffer[Sphere], private va
 }
 
 object World {
-  def Empty: World = World(mutable.ArrayBuffer.empty[Sphere], None)
+  def Empty: World = World(mutable.ArrayBuffer.empty[Shape], None)
 
   def Default: World = {
     val l = PointLight(Point(-10, 10, -10), Color(1, 1, 1))
@@ -57,6 +57,6 @@ object World {
     World(mutable.ArrayBuffer(s1, s2), Some(l))
   }
 
-  def create(objects: Seq[Sphere], light: PointLight): World = World(mutable.ArrayBuffer(objects: _*), Some(light))
+  def create(objects: Seq[Shape], light: PointLight): World = World(mutable.ArrayBuffer(objects: _*), Some(light))
 
 }

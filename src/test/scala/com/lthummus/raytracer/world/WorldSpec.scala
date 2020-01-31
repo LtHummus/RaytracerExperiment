@@ -108,8 +108,8 @@ class WorldSpec extends AnyFlatSpec with Matchers with TolerantEquality {
 
   it should "determine color when a ray hits with intersection behind ray" in {
     val w = World.Default
-    val outer = w.objects(0)
-    val inner = w.objects(1)
+    val outer = w.objects(0).asInstanceOf[Sphere]
+    val inner = w.objects(1).asInstanceOf[Sphere]
 
     val newOuter = outer.copy(material = outer.material.copy(ambient = 1.0))
     val newInner = inner.copy(material = inner.material.copy(ambient = 1.0))

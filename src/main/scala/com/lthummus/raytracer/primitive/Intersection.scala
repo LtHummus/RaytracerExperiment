@@ -1,11 +1,11 @@
 package com.lthummus.raytracer.primitive
 
 import com.lthummus.raytracer.rays.Ray
-import com.lthummus.raytracer.shapes.Sphere
+import com.lthummus.raytracer.shapes.Shape
 
-case class IntersectionInformation(obj: Sphere, t: Double, point: Tuple, eyeVector: Tuple, normalVector: Tuple, inside: Boolean, overPoint: Tuple)
+case class IntersectionInformation(obj: Shape, t: Double, point: Tuple, eyeVector: Tuple, normalVector: Tuple, inside: Boolean, overPoint: Tuple)
 
-case class Intersection(t: Double, obj: Sphere) {
+case class Intersection(t: Double, obj: Shape) {
   def prepareComputation(r: Ray): IntersectionInformation = {
     val point = r.pos(t)
     val eyeVector = -r.direction

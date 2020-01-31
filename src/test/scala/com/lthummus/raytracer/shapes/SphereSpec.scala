@@ -17,10 +17,9 @@ class SphereSpec extends AnyFlatSpec with Matchers with TolerantEquality with Sp
   }
 
   it should "apply transformations" in {
-    val s = Sphere()
     val t = Transformations.translation(2, 3, 4)
+    val s = Sphere(t)
 
-    s.transformation = t
     s.transformation mustBe t
   }
 
