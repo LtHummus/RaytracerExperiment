@@ -7,7 +7,7 @@ case class CheckerPattern(a: Color, b: Color, transform: Matrix = Matrix.Identit
   override type T = CheckerPattern
 
   override private[pattern] def colorAt(p: Tuple): Color = {
-    val pointSum = p.x.floor + p.y.floor + p.z.floor
-    if ((pointSum % 2) == 0) a else b
+    val pointSum = (p.x + Constants.Eplison).floor + (p.y + Constants.Eplison).floor + (p.z + Constants.Eplison).floor
+    if ((pointSum % 2).abs < Constants.Eplison) a else b
   }
 }
