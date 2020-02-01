@@ -1,11 +1,17 @@
 package com.lthummus.raytracer.material
 
 import com.lthummus.raytracer.lights.PointLight
+import com.lthummus.raytracer.pattern.Pattern
 import com.lthummus.raytracer.primitive.{Color, Tuple}
+import com.lthummus.raytracer.shapes.Shape
 
-case class SimpleMaterial(color: Color, ambient: Double, diffuse: Double, specular: Double, shininess: Double) {
-  def lighting(light: PointLight, pos: Tuple, eyeVector: Tuple, normalVector: Tuple, inShadow: Boolean): Color = {
-    val effectiveColor = color * light.intensity
+case class SimpleMaterial(color: Color, ambient: Double, diffuse: Double, specular: Double, shininess: Double, pattern: Option[Pattern]) {
+  def lighting(obj: Shape, light: PointLight, pos: Tuple, eyeVector: Tuple, normalVector: Tuple, inShadow: Boolean): Color = {
+    val realColor = pattern match {
+      case None    => color
+      case Some(p) => p.colorOnObject(pos, obj)
+    }
+    val effectiveColor = realColor * light.intensity
     val lightVector = (light.pos - pos).normalized
     val ambientLighting = effectiveColor * ambient
     val lightDotNormal = lightVector dot normalVector
@@ -34,5 +40,5 @@ case class SimpleMaterial(color: Color, ambient: Double, diffuse: Double, specul
 }
 
 object SimpleMaterial {
-  val Default: SimpleMaterial = SimpleMaterial(Color(1, 1, 1), 0.1, 0.9, 0.9, 200.0)
+  val Default: SimpleMaterial = SimpleMaterial(Color(1, 1, 1), 0.1, 0.9, 0.9, 200.0, None)
 }

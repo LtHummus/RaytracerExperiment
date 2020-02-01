@@ -5,6 +5,7 @@ import java.io.File
 import com.lthummus.raytracer.camera.SimpleCamera
 import com.lthummus.raytracer.lights.PointLight
 import com.lthummus.raytracer.material.SimpleMaterial
+import com.lthummus.raytracer.pattern.{CheckerPattern, RingPattern, StripedPattern}
 import com.lthummus.raytracer.primitive.{Color, Matrix, Point, Vec}
 import com.lthummus.raytracer.shapes.{Plane, Sphere}
 import com.lthummus.raytracer.tools.Transformations
@@ -16,7 +17,8 @@ object TestApp extends App {
 
   val start = System.currentTimeMillis()
 
-  val floor = Plane(Matrix.Identity4, SimpleMaterial.Default.copy(color = Color(.5, .5, 0)))
+  val floorMaterial = SimpleMaterial.Default.copy(pattern = Some(RingPattern(Color(0.5, 0.5, 0.5), Color(.75, .75, .75))))
+  val floor = Plane(Matrix.Identity4, floorMaterial)
 
   //middle sphere
   val middleSphereMaterial = SimpleMaterial.Default.copy(color = Color(0.1, 1, 0.5), diffuse = 0.7, specular = 0.3)
@@ -34,7 +36,7 @@ object TestApp extends App {
 
   //build the world
   val light = PointLight(Point(-10, 10, -10), Color(1, 1, 1))
-  val world = World.create(Seq(floor, leftSphere, rightSphere), light)
+  val world = World.create(Seq(floor), light)
 
   //camera
   val cameraTransform = Transformations.viewTransform(Point(0, 1.5, -5), Point(0, 1, 0), Vec(0, 1, 0))

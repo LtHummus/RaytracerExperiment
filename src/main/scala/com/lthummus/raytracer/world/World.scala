@@ -23,7 +23,7 @@ case class World(private val objectList: mutable.ArrayBuffer[Shape], private var
   }
 
   def shadeHit(info: IntersectionInformation): Color = {
-    info.obj.material.lighting(lightSource.get, info.point, info.eyeVector, info.normalVector, isShadowed(info.overPoint))
+    info.obj.material.lighting(info.obj, lightSource.get, info.point, info.eyeVector, info.normalVector, isShadowed(info.overPoint))
   }
 
   def colorAt(ray: Ray): Color = {
