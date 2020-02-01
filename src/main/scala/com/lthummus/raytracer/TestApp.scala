@@ -17,7 +17,7 @@ object TestApp extends App {
 
   val start = System.currentTimeMillis()
 
-  val floorMaterial = SimpleMaterial.Default.copy(pattern = Some(CheckerPattern(Color(0.5, 0.5, 0.5), Color(.75, .75, .75))))
+  val floorMaterial = SimpleMaterial.Default.copy(specular = 0.5, diffuse = 0.4, reflective = .2, pattern = Some(CheckerPattern(Color(0.5, 0.5, 0.5), Color(.75, .75, .75))))
   val floor = Plane(Matrix.Identity4, floorMaterial)
 
   //middle sphere
@@ -35,8 +35,8 @@ object TestApp extends App {
   val leftSphere = Sphere(leftSphereTransform, leftSphereMaterial)
 
   //build the world
-  val light = PointLight(Point(0, 10, 0), Color(1, 1, 1))
-  val world = World.create(Seq(floor), light)
+  val light = PointLight(Point(-10, 10, -5), Color(1, 1, 1))
+  val world = World.create(Seq(floor, middleSphere, leftSphere, rightSphere), light)
 
   //camera
   val cameraTransform = Transformations.viewTransform(Point(0, 1.5, -5), Point(0, 1, 0), Vec(0, 1, 0))

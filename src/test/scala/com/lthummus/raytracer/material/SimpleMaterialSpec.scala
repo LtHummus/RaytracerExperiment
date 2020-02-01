@@ -13,13 +13,15 @@ class SimpleMaterialSpec extends AnyFlatSpec with Matchers with TolerantEquality
   "SimpleMaterial" should "construct properly" in {
     val c = Color(1, 1, 1)
 
-    val m = SimpleMaterial(c, 0.1, 0.9, 0.9, 200.0, None)
+    val m = SimpleMaterial(c, 0.1, 0.9, 0.9, 200.0, 0.0, None)
 
     m.color mustBe c
     m.ambient mustBe 0.1
     m.diffuse mustBe 0.9
     m.specular mustBe 0.9
     m.shininess mustBe 200.0
+    m.reflective mustBe 0.0
+    m.pattern mustBe None
   }
 
   "lighting" should "calculate with light between eye and surface" in {

@@ -18,20 +18,39 @@ case class World(private val objectList: mutable.ArrayBuffer[Shape], private var
   def light: Option[PointLight] = lightSource
   def objects: Seq[Shape] = objectList.toSeq
 
+  def appendShape(s: Shape): World = {
+    objectList.addOne(s)
+    this
+  }
+
   def intersections(ray: Ray): Seq[Intersection] = {
     objects.flatMap(_.intersections(ray)).sorted
   }
 
-  def shadeHit(info: IntersectionInformation): Color = {
-    info.obj.material.lighting(info.obj, lightSource.get, info.point, info.eyeVector, info.normalVector, isShadowed(info.overPoint))
+  def shadeHit(info: IntersectionInformation, lifetime: Int = 5): Color = {
+    val surface = info.obj.material.lighting(info.obj, lightSource.get, info.point, info.eyeVector, info.normalVector, isShadowed(info.overPoint))
+    val reflected = reflectedColor(info, lifetime)
+
+    surface + reflected
   }
 
-  def colorAt(ray: Ray): Color = {
+  def colorAt(ray: Ray, lifetime: Int = 5): Color = {
     val allIntersections = intersections(ray)
 
     allIntersections.hit match {
       case None      => Color.Black //ray doesn't hit anything
-      case Some(hit) => shadeHit(hit.prepareComputation(ray))
+      case Some(hit) => shadeHit(hit.prepareComputation(ray), lifetime)
+    }
+  }
+
+  def reflectedColor(info: IntersectionInformation, lifetime: Int = 5): Color = {
+    if (lifetime <= 0 || info.obj.material.reflective == 0) {
+      Color.Black
+    } else {
+      val reflectedRay = Ray(info.overPoint, info.reflectVector)
+      val c = colorAt(reflectedRay, lifetime - 1)
+
+      c * info.obj.material.reflective
     }
   }
 

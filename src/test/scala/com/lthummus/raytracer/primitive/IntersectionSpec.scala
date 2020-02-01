@@ -1,11 +1,12 @@
 package com.lthummus.raytracer.primitive
 
+import com.lthummus.raytracer.SpecConstants
 import com.lthummus.raytracer.rays.Ray
-import com.lthummus.raytracer.shapes.Sphere
+import com.lthummus.raytracer.shapes.{Plane, Sphere}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 
-class IntersectionSpec extends AnyFlatSpec with Matchers {
+class IntersectionSpec extends AnyFlatSpec with Matchers with SpecConstants {
 
   "Intersection" should "be able to prepare computations" in {
     val s = Sphere()
@@ -33,5 +34,13 @@ class IntersectionSpec extends AnyFlatSpec with Matchers {
     info.eyeVector mustBe Vec(0, 0, -1)
     info.inside mustBe true
     info.normalVector mustBe Vec(0, 0, -1)
+  }
+
+  it should "be able to calculate the reflection vector" in {
+    val s = Plane()
+    val r = Ray(Point(0, 1, -1), Vec(0, -HalfRootTwo, HalfRootTwo))
+    val i = Intersection(RootTwo, s)
+
+    i.prepareComputation(r).reflectVector mustBe Vec(0, HalfRootTwo, HalfRootTwo)
   }
 }
