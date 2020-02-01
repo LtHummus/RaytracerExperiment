@@ -3,7 +3,6 @@ package com.lthummus.raytracer.tools
 import com.lthummus.raytracer.primitive.{Matrix, Tuple}
 
 object Transformations {
-
   def translation(x: Double, y: Double, z: Double): Matrix = {
     Matrix(
       1, 0, 0, x,
@@ -73,4 +72,37 @@ object Transformations {
 
     orientation * translation(-from.x, -from.y, -from.z)
   }
+}
+
+object Translate {
+  def apply(x: Double, y: Double, z: Double): Matrix = Transformations.translation(x, y, z)
+}
+
+object Scale {
+  def apply(x: Double, y: Double, z: Double): Matrix = Transformations.scale(x, y, z)
+}
+
+object RotateX {
+  def apply(r: Double): Matrix = Transformations.rotateX(r)
+}
+
+object RotateY {
+  def apply(r: Double): Matrix = Transformations.rotateY(r)
+}
+
+object RotateZ {
+  def apply(r: Double): Matrix = Transformations.rotateZ(r)
+}
+
+object Sheer {
+  def apply(xy: Double, xz: Double, yx: Double, yz: Double, zx: Double, zy: Double): Matrix =
+    Transformations.sheer(xy, xz, yx, yz, zx, zy)
+}
+
+object Identity {
+  def apply: Matrix = Matrix.Identity4
+}
+
+object ViewTransformation {
+  def apply(from: Tuple, to: Tuple, up: Tuple): Matrix = Transformations.viewTransform(from, to, up)
 }
