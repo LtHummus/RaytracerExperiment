@@ -3,10 +3,11 @@ package com.lthummus.raytracer.world
 import com.lthummus.raytracer.{SpecConstants, TolerantEquality, primitive}
 import com.lthummus.raytracer.lights.PointLight
 import com.lthummus.raytracer.material.SimpleMaterial
+import com.lthummus.raytracer.pattern.{Pattern, SamplePattern}
 import com.lthummus.raytracer.primitive.{Color, Intersection, Matrix, Point, Vec}
 import com.lthummus.raytracer.rays.Ray
 import com.lthummus.raytracer.shapes.{Plane, Sphere}
-import com.lthummus.raytracer.tools.Transformations
+import com.lthummus.raytracer.tools.{Transformations, Translate}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 
@@ -60,7 +61,7 @@ class WorldSpec extends AnyFlatSpec with Matchers with TolerantEquality with Spe
     val s = w.objects.head
     val i = Intersection(4, s)
 
-    val info = i.prepareComputation(r)
+    val info = i.prepareComputation(r, Seq(i))
 
     assert(w.shadeHit(info) === Color(0.38066, 0.47583, 0.2855))
   }
@@ -71,7 +72,7 @@ class WorldSpec extends AnyFlatSpec with Matchers with TolerantEquality with Spe
     val s = w.objects(1)
     val i = Intersection(0.5, s)
 
-    val info = i.prepareComputation(r)
+    val info = i.prepareComputation(r, Seq(i))
 
     assert(w.shadeHit(info) === Color(0.90498, 0.90498, 0.90498))
   }
@@ -86,7 +87,7 @@ class WorldSpec extends AnyFlatSpec with Matchers with TolerantEquality with Spe
     val r = Ray(Point(0, 0, 5), Vec(0, 0, 1))
     val i = Intersection(4, s2)
 
-    val info = i.prepareComputation(r)
+    val info = i.prepareComputation(r, Seq(i))
 
     w.shadeHit(info) mustBe Color(0.1, 0.1, 0.1)
   }
@@ -99,9 +100,36 @@ class WorldSpec extends AnyFlatSpec with Matchers with TolerantEquality with Spe
     val r = Ray(Point(0, 0, -3), Vec(0, -HalfRootTwo, HalfRootTwo))
     val i = Intersection(RootTwo, s)
 
-    val info = i.prepareComputation(r)
+    val info = i.prepareComputation(r, Seq(i))
 
     assert(w.shadeHit(info) === Color(0.87677, 0.92436, 0.82918))
+  }
+
+  it should "be able to  handle a transparent material" in {
+    val f = Plane(Translate(0, -1, 0), SimpleMaterial.Default.copy(transparency = 0.5, refractiveIndex = 1.5))
+    val ball = Sphere(Translate(0, -3.5, -.05), SimpleMaterial.Default.copy(color = Color(1, 0, 0), ambient = 0.5))
+
+    val w = World.Default.appendShape(ball).appendShape(f)
+
+    val r = Ray(Point(0, 0, -3), Vec(0, -HalfRootTwo, HalfRootTwo))
+    val xs = Seq(Intersection(RootTwo, f))
+
+    val info = xs.head.prepareComputation(r, xs)
+
+    assert(w.shadeHit(info) === Color(0.93642, 0.68642, 0.68642))
+  }
+
+  it should "handle a reflective, transparent material" in {
+    val f = Plane(Translate(0, -1, 0), SimpleMaterial.Default.copy(reflective = 0.5, transparency = 0.5, refractiveIndex = 1.5))
+    val ball = Sphere(Translate(0, -3.5, -0.5), SimpleMaterial.Default.copy(color = Color(1, 0, 0), ambient = 0.5))
+    val w = World.Default.appendShape(f).appendShape(ball)
+
+    val r = Ray(Point(0, 0, -3), Vec(0, -HalfRootTwo, HalfRootTwo))
+    val xs = Seq(Intersection(RootTwo, f))
+
+    val info = xs.head.prepareComputation(r, xs)
+
+    assert(w.shadeHit(info) === Color(0.9339158, 0.69643513, 0.6924312))
   }
 
   "colorAt" should "be able to handle when ray misses" in {
@@ -153,7 +181,7 @@ class WorldSpec extends AnyFlatSpec with Matchers with TolerantEquality with Spe
     val r = Ray(Point(0, 0, -3), Vec(0, -HalfRootTwo, HalfRootTwo))
     val i = Intersection(RootTwo, s)
 
-    val info = i.prepareComputation(r)
+    val info = i.prepareComputation(r, Seq(i))
     w.reflectedColor(info, lifetime = 0) mustBe Color.Black
   }
 
@@ -194,7 +222,7 @@ class WorldSpec extends AnyFlatSpec with Matchers with TolerantEquality with Spe
     val newWorld = w.copy(objectList = mutable.ArrayBuffer(s1, newS2))
     val i = Intersection(1, newS2)
 
-    val info = i.prepareComputation(r)
+    val info = i.prepareComputation(r, Seq(i))
 
     newWorld.reflectedColor(info) mustBe Color(0, 0, 0)
   }
@@ -208,8 +236,72 @@ class WorldSpec extends AnyFlatSpec with Matchers with TolerantEquality with Spe
     val r = Ray(Point(0, 0, -3), Vec(0, -HalfRootTwo, HalfRootTwo))
     val i = Intersection(RootTwo, s)
 
-    val info = i.prepareComputation(r)
+    val info = i.prepareComputation(r, Seq(i))
 
     assert(w.reflectedColor(info) === Color(0.19032, 0.2379, 0.14274))
+  }
+
+  "refractions" should "work with opaque surface" in {
+    val w = World.Default
+    val s = w.objects.head
+    val r = Ray(Point(0, 0, -5), Vec(0, 0, 1))
+    val xs = Seq(Intersection(4, s), Intersection(6, s))
+
+    val info = xs.head.prepareComputation(r, xs)
+
+    w.refractedColor(info) mustBe Color.Black
+  }
+
+  it should "work at max recursion depth" in {
+    val w = World.Default
+    val s = w.objects.head.asInstanceOf[Sphere]
+    val m = s.material
+
+    val newS = s.copy(material = m.copy(transparency = 1.0, refractiveIndex = 1.5))
+    val w2 = World.create(Seq(newS, w.objects(1)), w.light.get)
+
+    val r = Ray(Point(0, 0, -5), Vec(0, 0, 1))
+    val xs = Seq(Intersection(4, newS), Intersection(6, newS))
+    val info = xs.head.prepareComputation(r, xs)
+
+    w.refractedColor(info, 0) mustBe Color.Black
+
+  }
+
+  it should "work with total internal reflection" in {
+    val w = World.Default
+    val s = w.objects.head.asInstanceOf[Sphere]
+    val m = s.material
+
+    val newS = s.copy(material = m.copy(transparency = 1.0, refractiveIndex = 1.5))
+    val w2 = World.create(Seq(newS, w.objects(1)), w.light.get)
+
+    val r = Ray(Point(0, 0, HalfRootTwo), Vec(0, 1, 0))
+    val xs = Seq(
+      Intersection(-HalfRootTwo, s),
+      Intersection(HalfRootTwo, s)
+    )
+
+    val info = xs(1).prepareComputation(r, xs)
+
+    w.refractedColor(info) mustBe Color.Black
+  }
+
+  it should "work with a refracted ray" in {
+    val a = Sphere(Matrix.Identity4, World.Default.objects.head.material.copy(ambient = 1.0, pattern = Some(SamplePattern())))
+    val b = Sphere(Transformations.scale(0.5, 0.5, 0.5), SimpleMaterial.Default.copy(transparency = 1.0, refractiveIndex = 1.5))
+
+    val w = World.create(Seq(a, b), World.Default.light.get)
+    val r = Ray(Point(0, 0, 0.1), Vec(0, 1, 0))
+
+    val xs = Seq(
+      Intersection(-0.9899, a),
+      Intersection(-0.4899, b),
+      Intersection(0.4899, b),
+      Intersection(0.9899, a)
+    )
+
+    val info = xs(2).prepareComputation(r, xs)
+    assert(w.refractedColor(info) === Color(0, 0.9988, 0.04725))
   }
 }

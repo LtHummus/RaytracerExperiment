@@ -39,3 +39,7 @@ case class Sphere(transformation: Matrix = Matrix.Identity4, material: SimpleMat
   }
 
 }
+
+object Sphere {
+  val GlassSphere: Sphere = Sphere(Matrix.Identity4, SimpleMaterial.Default.copy(transparency = 1.0, refractiveIndex = 1.5))
+}

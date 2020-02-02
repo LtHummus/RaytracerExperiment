@@ -3,8 +3,10 @@ package com.lthummus.raytracer.material
 import com.lthummus.raytracer.{SpecConstants, TolerantEquality}
 import com.lthummus.raytracer.lights.PointLight
 import com.lthummus.raytracer.pattern.StripedPattern
-import com.lthummus.raytracer.primitive.{Color, Point, Vec}
+import com.lthummus.raytracer.primitive.{Color, Intersection, Point, Vec}
+import com.lthummus.raytracer.rays.Ray
 import com.lthummus.raytracer.shapes.Sphere
+import com.lthummus.raytracer.tools.{Scale, Translate}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 
@@ -13,7 +15,7 @@ class SimpleMaterialSpec extends AnyFlatSpec with Matchers with TolerantEquality
   "SimpleMaterial" should "construct properly" in {
     val c = Color(1, 1, 1)
 
-    val m = SimpleMaterial(c, 0.1, 0.9, 0.9, 200.0, 0.0, None)
+    val m = SimpleMaterial(c, 0.1, 0.9, 0.9, 200.0, 0.0, 0.0, 1.0, None)
 
     m.color mustBe c
     m.ambient mustBe 0.1
@@ -21,6 +23,8 @@ class SimpleMaterialSpec extends AnyFlatSpec with Matchers with TolerantEquality
     m.specular mustBe 0.9
     m.shininess mustBe 200.0
     m.reflective mustBe 0.0
+    m.transparency mustBe 0.0
+    m.refractiveIndex mustBe 1.0
     m.pattern mustBe None
   }
 

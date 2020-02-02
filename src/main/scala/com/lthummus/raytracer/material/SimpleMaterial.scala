@@ -5,7 +5,7 @@ import com.lthummus.raytracer.pattern.Pattern
 import com.lthummus.raytracer.primitive.{Color, Tuple}
 import com.lthummus.raytracer.shapes.Shape
 
-case class SimpleMaterial(color: Color, ambient: Double, diffuse: Double, specular: Double, shininess: Double, reflective: Double, pattern: Option[Pattern]) {
+case class SimpleMaterial(color: Color, ambient: Double, diffuse: Double, specular: Double, shininess: Double, reflective: Double, transparency: Double, refractiveIndex: Double, pattern: Option[Pattern]) {
   def lighting(obj: Shape, light: PointLight, pos: Tuple, eyeVector: Tuple, normalVector: Tuple, inShadow: Boolean): Color = {
     val realColor = pattern match {
       case None    => color
@@ -40,5 +40,5 @@ case class SimpleMaterial(color: Color, ambient: Double, diffuse: Double, specul
 }
 
 object SimpleMaterial {
-  val Default: SimpleMaterial = SimpleMaterial(Color(1, 1, 1), 0.1, 0.9, 0.9, 200.0, 0.0, None)
+  val Default: SimpleMaterial = SimpleMaterial(Color(1, 1, 1), 0.1, 0.9, 0.9, 200.0, 0.0, 0.0, 1.0, None)
 }

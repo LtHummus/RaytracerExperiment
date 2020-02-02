@@ -30,8 +30,14 @@ case class World(private val objectList: mutable.ArrayBuffer[Shape], private var
   def shadeHit(info: IntersectionInformation, lifetime: Int = 5): Color = {
     val surface = info.obj.material.lighting(info.obj, lightSource.get, info.point, info.eyeVector, info.normalVector, isShadowed(info.overPoint))
     val reflected = reflectedColor(info, lifetime)
+    val refracted = refractedColor(info, lifetime)
 
-    surface + reflected
+    if (info.obj.material.reflective > 0 && info.obj.material.transparency > 0) {
+      val reflectance = info.schlick
+      surface + reflected * reflectance + refracted * (1 - reflectance)
+    } else {
+      surface + reflected + refracted
+    }
   }
 
   def colorAt(ray: Ray, lifetime: Int = 5): Color = {
@@ -39,7 +45,7 @@ case class World(private val objectList: mutable.ArrayBuffer[Shape], private var
 
     allIntersections.hit match {
       case None      => Color.Black //ray doesn't hit anything
-      case Some(hit) => shadeHit(hit.prepareComputation(ray), lifetime)
+      case Some(hit) => shadeHit(hit.prepareComputation(ray, allIntersections), lifetime)
     }
   }
 
@@ -51,6 +57,26 @@ case class World(private val objectList: mutable.ArrayBuffer[Shape], private var
       val c = colorAt(reflectedRay, lifetime - 1)
 
       c * info.obj.material.reflective
+    }
+  }
+
+  def refractedColor(info: IntersectionInformation, lifetime: Int = 5): Color = {
+    if (lifetime <= 0 || info.obj.material.transparency == 0) {
+      Color.Black
+    } else {
+      val nRatio = info.n1 / info.n2
+      val cosI = info.eyeVector dot info.normalVector
+      val sin2T = nRatio * nRatio * (1 - (cosI * cosI))
+
+      if (sin2T > 1) {
+        Color.Black
+      } else {
+        val cosT = Math.sqrt(1 - sin2T)
+        val direction = info.normalVector * (nRatio * cosI - cosT) - info.eyeVector * nRatio
+        val refractRay = Ray(info.underPoint, direction)
+
+        colorAt(refractRay, lifetime - 1) * info.obj.material.transparency
+      }
     }
   }
 

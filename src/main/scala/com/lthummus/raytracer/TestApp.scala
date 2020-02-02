@@ -8,7 +8,7 @@ import com.lthummus.raytracer.material.SimpleMaterial
 import com.lthummus.raytracer.pattern.{CheckerPattern, RingPattern, StripedPattern}
 import com.lthummus.raytracer.primitive.{Color, Matrix, Point, Vec}
 import com.lthummus.raytracer.shapes.{Plane, Sphere}
-import com.lthummus.raytracer.tools.{Scale, Transformations, Translate, ViewTransformation}
+import com.lthummus.raytracer.tools.{RotateX, RotateY, Scale, Transformations, Translate, ViewTransformation}
 import com.lthummus.raytracer.world.World
 import com.typesafe.scalalogging.Logger
 import javax.imageio.ImageIO
@@ -28,7 +28,7 @@ object TestApp extends App {
   Log.info("Floor built")
 
   //middle sphere
-  val middleSphereMaterial = SimpleMaterial.Default.copy(color = Color(0.1, 1, 0.5), diffuse = 0.7, specular = 0.3)
+  val middleSphereMaterial = SimpleMaterial.Default.copy(color = Color(0.1, 0.1, 0.2), ambient = .2, diffuse = 0.1, specular = 0.8, reflective = 0.9, transparency = 1.0, refractiveIndex = 1.5)
   val middleSphere = Sphere(Translate(-0.5, 1, 0.5), middleSphereMaterial)
 
   //right sphere
@@ -49,7 +49,7 @@ object TestApp extends App {
 
   Log.info("World created")
   //camera
-  val cameraTransform = ViewTransformation(Point(0, 1.5, -5), Point(0, 1, 0), Vec(0, 1, 0))
+  val cameraTransform = ViewTransformation(Point(-5, 1.5, 0), Point(0, 1, 0), Vec(0, 1, 0))
   val camera = SimpleCamera(800, 800, Math.PI / 3, cameraTransform)
 
   Log.info("Camera built")
