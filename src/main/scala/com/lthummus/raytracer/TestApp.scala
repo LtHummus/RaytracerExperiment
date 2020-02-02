@@ -7,7 +7,7 @@ import com.lthummus.raytracer.lights.PointLight
 import com.lthummus.raytracer.material.{Material, SimpleMaterial}
 import com.lthummus.raytracer.pattern.{CheckerPattern, GradientPattern, RingPattern, StripedPattern}
 import com.lthummus.raytracer.primitive.{Color, Matrix, Point, Vec}
-import com.lthummus.raytracer.shapes.{Cube, Plane, Sphere}
+import com.lthummus.raytracer.shapes.{Cone, Cube, Cylinder, Plane, Sphere}
 import com.lthummus.raytracer.tools.{RotateX, RotateY, RotateZ, Scale, Transformations, Translate, ViewTransformation}
 import com.lthummus.raytracer.world.World
 import com.typesafe.scalalogging.Logger
@@ -28,20 +28,22 @@ object TestApp extends App {
   Log.info("Floor built")
 
   //middle sphere
-  val middleSphereMaterial = SimpleMaterial.Default.copy(color = Color(0.1, 0.1, 0.2), ambient = .2, diffuse = 0.1, specular = 0.8, reflective = 0.9, transparency = 1.0, refractiveIndex = 1.5)
-  val middleSphere = Sphere(Translate(-0.5, 1, 2), middleSphereMaterial)
+  //val middleSphereMaterial = SimpleMaterial.Default.copy(color = Color(0.1, 0.1, 0.2), ambient = .2, diffuse = 0.1, specular = 0.8, reflective = 0.9, transparency = 1.0, refractiveIndex = 1.5)
+  //val middleSphere = Sphere(Translate(-0.5, 1, 2), middleSphereMaterial)
 
-  val cube = Cube(Translate(0, 1, -2) * RotateY(math.Pi / 5), SimpleMaterial.Default.copy(ambient = .4, diffuse = 0.01, specular = 0, reflective = 0, transparency = .1, refractiveIndex = 1.0, pattern = Some(CheckerPattern(Color.Red, Color.Blue))))
+  //val cube = Cube(Translate(0, 1, -2) * RotateY(math.Pi / 5), SimpleMaterial.Default.copy(ambient = .4, diffuse = 0.01, specular = 0, reflective = 0, transparency = .1, refractiveIndex = 1.0, pattern = Some(CheckerPattern(Color.Red, Color.Blue))))
+
+  val cylinder = Cylinder(0, 4, closed = true, Scale(1.5, 1.5, 1.5), SimpleMaterial.Default.copy(color = Color(0.1, 0.1, 0.1), ambient = 0.2, diffuse = 0.1, specular = 0.8, reflective = 0.9, transparency = 1.0, refractiveIndex = 1.5))
 
   Log.info("Shapes built")
 
   //build the world
   val light = PointLight(Point(-10, 10, -5), Color.White)
-  val world = World.create(Seq(floor, middleSphere, cube), light)
+  val world = World.create(Seq(floor, cylinder), light)
 
   Log.info("World created")
   //camera
-  val cameraTransform = ViewTransformation(Point(-5, 4, 0), Point(0, 1, 0), Vec(0, 1, 0))
+  val cameraTransform = ViewTransformation(Point(-5, 8, 0), Point(0, 1, 0), Vec(0, 1, 0))
   val camera = SimpleCamera(800, 800, Math.PI / 3, cameraTransform)
 
   Log.info("Camera built")
