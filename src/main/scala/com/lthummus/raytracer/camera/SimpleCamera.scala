@@ -4,6 +4,8 @@ import com.lthummus.raytracer.primitive.{Canvas, Matrix, Point, Vec}
 import com.lthummus.raytracer.rays.Ray
 import com.lthummus.raytracer.world.World
 
+import scala.collection.parallel.CollectionConverters._
+
 case class SimpleCamera(horizSize: Int, vertSize: Int, fov: Double, transform: Matrix = Matrix.Identity4) {
   val halfView: Double = Math.tan(fov / 2)
   val aspect: Double = horizSize.toDouble / vertSize
@@ -39,10 +41,12 @@ case class SimpleCamera(horizSize: Int, vertSize: Int, fov: Double, transform: M
   def render(world: World): Canvas = {
     val canvas = Canvas(horizSize, vertSize)
 
-    for {
+    val allPoints = for {
       y <- 0 until vertSize
       x <- 0 until horizSize
-    } {
+    } yield (x, y)
+
+    allPoints.par.foreach { case(x, y) =>
       val r = rayForPixel(x, y)
       val c = world.colorAt(r)
 

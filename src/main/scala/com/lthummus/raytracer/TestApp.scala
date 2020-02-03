@@ -47,7 +47,7 @@ object TestApp extends App {
   Log.info("Shapes built")
 
   //build the world
-  val light = PointLight(Point(-10, 2, -5), Color.White)
+  val light = PointLight(Point(-10, 4, -5), Color.White)
   val world = World.create(Seq(floor, teapot), light)
 
   Log.info("World created")
