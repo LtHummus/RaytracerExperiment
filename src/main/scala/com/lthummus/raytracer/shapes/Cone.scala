@@ -9,7 +9,7 @@ case class Cone(minimum: Double = Double.NegativeInfinity,
                 maximum: Double = Double.PositiveInfinity,
                 closed: Boolean = false,
                 transformation: Matrix = Matrix.Identity4,
-                material: SimpleMaterial = SimpleMaterial.Default,
+                var material: SimpleMaterial = SimpleMaterial.Default,
                 var parent: Option[Shape] = None
                ) extends Shape {
   override type T = Cone

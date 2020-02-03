@@ -8,7 +8,8 @@ abstract class Shape() {
 
   type T <: Shape
   val transformation: Matrix
-  val material: SimpleMaterial
+
+  var material: SimpleMaterial
   var parent: Option[Shape]
 
   protected def rayToObjectSpace(r: Ray): Ray = r.transform(transformation.inverted)
