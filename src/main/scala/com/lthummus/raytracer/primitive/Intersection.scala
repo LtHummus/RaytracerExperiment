@@ -23,7 +23,7 @@ case class IntersectionInformation(obj: Shape, t: Double, point: Tuple, eyeVecto
   }
 }
 
-case class Intersection(t: Double, obj: Shape) {
+case class Intersection(t: Double, obj: Shape, u: Option[Double] = None, v: Option[Double] = None) {
 
   //TODO: this isn't very "scala" so maybe rewrite it later?
   private def getRefractions(xs: Seq[Intersection]): (Double, Double) = {
@@ -62,7 +62,7 @@ case class Intersection(t: Double, obj: Shape) {
   def prepareComputation(r: Ray, xs: Seq[Intersection]): IntersectionInformation = {
     val point = r.pos(t)
     val eyeVector = -r.direction
-    val normalVector = obj.normal(point)
+    val normalVector = obj.normal(point, Some(this))
     val reflectVector = r.direction.reflectVector(normalVector)
 
     val (n1, n2) = getRefractions(xs)

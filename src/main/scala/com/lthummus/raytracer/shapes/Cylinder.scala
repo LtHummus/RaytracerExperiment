@@ -13,7 +13,7 @@ case class Cylinder(minimum: Double = Double.NegativeInfinity,
                     var parent: Option[Shape] = None) extends Shape {
   override type T = Cylinder
 
-  override private[shapes] def shapeNormalAt(p: Tuple): Tuple = {
+  override private[shapes] def shapeNormalAt(p: Tuple, info: Option[Intersection] = None): Tuple = {
     val d = p.x * p.x + p.z * p.z
 
     if (d < 1 && p.y >= maximum - Constants.Eplison) {

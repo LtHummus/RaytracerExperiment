@@ -14,8 +14,8 @@ case class Group(var children: Seq[Shape] = Seq(), transformation: Matrix = Matr
     children.foreach(_.material = m)
   }
 
-  override private[shapes] def shapeNormalAt(p: Tuple): Tuple = {
-    ???
+  override private[shapes] def shapeNormalAt(p: Tuple, info: Option[Intersection] = None): Tuple = {
+    throw new IllegalStateException("Attempted to find normal on a Group object")
   }
 
   override private[shapes] def shapeIntersectionFrom(r: Ray): Seq[Intersection] = {

@@ -40,4 +40,20 @@ trait TolerantEquality {
         }
     }
   }
+
+  implicit val optionalDoubleEquality = new Equality[Option[Double]] {
+    override def areEqual(a: Option[Double], b: Any): Boolean =
+      b match {
+        case None => false
+        case other: Option[Double] =>
+          (a, other) match {
+            case (None, None)       => false
+            case (Some(_), None)    => false
+            case (None, Some(_))    => false
+            case (Some(x), Some(y)) => doubleEquality.areEqual(x, y)
+          }
+      }
+
+
+  }
 }

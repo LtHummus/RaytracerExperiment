@@ -17,9 +17,9 @@ abstract class Shape() {
   protected def vecToWorldNormalized(v: Tuple): Tuple = (transformation.inverted.transpose * v).copy(w = 0).normalized
 
   def intersections(r: Ray): Seq[Intersection] = shapeIntersectionFrom(rayToObjectSpace(r))
-  def normal(p: Tuple): Tuple = {
+  def normal(p: Tuple, info: Option[Intersection] = None): Tuple = {
     val localPoint = worldToObject(p)
-    val localNormal = shapeNormalAt(localPoint)
+    val localNormal = shapeNormalAt(localPoint, info)
     normalToWorld(localNormal)
   }
   def reflect(p: Tuple): Tuple = p.reflectVector(normal(p))
@@ -43,6 +43,6 @@ abstract class Shape() {
 
   }
 
-  private[shapes] def shapeNormalAt(p: Tuple): Tuple
+  private[shapes] def shapeNormalAt(p: Tuple, info: Option[Intersection]): Tuple
   private[shapes] def shapeIntersectionFrom(r: Ray): Seq[Intersection]
 }

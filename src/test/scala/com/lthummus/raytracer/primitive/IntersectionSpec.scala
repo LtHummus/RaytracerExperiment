@@ -2,7 +2,7 @@ package com.lthummus.raytracer.primitive
 
 import com.lthummus.raytracer.{SpecConstants, TolerantEquality}
 import com.lthummus.raytracer.rays.Ray
-import com.lthummus.raytracer.shapes.{Plane, Sphere}
+import com.lthummus.raytracer.shapes.{Plane, Sphere, Triangle}
 import com.lthummus.raytracer.tools.{Scale, Translate}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
@@ -84,6 +84,14 @@ class IntersectionSpec extends AnyFlatSpec with Matchers with SpecConstants with
       assert(res.n2 === n2s(x), s"on idx $x")
 
     }
+  }
+
+  it should "be able to handle u and v values" in {
+    val s = Triangle(Point(0, 1, 0), Point(-1, 0, 0), Point(1, 0, 0))
+    val i = Intersection(3.5, s, Some(0.2), Some(0.4))
+
+    i.u mustBe Some(0.2)
+    i.v mustBe Some(0.4)
   }
 
   "Schlick" should "work under total internal reflection" in {
