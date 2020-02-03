@@ -10,7 +10,7 @@ abstract class Pattern {
   private[pattern] def colorAt(p: Tuple): Color
 
   private def pointToPatternPoint(o: Shape, p: Tuple): Tuple = {
-    val objectPoint = o.transformation.inverted * p
+    val objectPoint = o.worldToObject(p)
     transform.inverted * objectPoint
   }
 
