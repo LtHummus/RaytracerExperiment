@@ -7,7 +7,7 @@ import javax.imageio.ImageIO
 
 object SceneTestApp extends App {
 
-  val f = new File("/Users/bschwartz/test.yaml")
+  val f = new File("/Users/bschwartz/test2.yaml")
   val data = scala.io.Source.fromFile(f).getLines().toSeq.mkString("\n")
   val scene = HummusScene.fromRawText(data)
 

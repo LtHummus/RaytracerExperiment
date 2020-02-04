@@ -27,6 +27,7 @@ private[scene] class HummusSceneBuilder(data: String) {
         case Left(error)                 => Log.warn(s"Error: $error")
         case Right(sceneObject: Camera)  => camera = Some(sceneObject.asSimpleCamera)
         case Right(primitive: Primitive) => shapes += primitive.asShape
+        case Right(mesh: Mesh)           => shapes += mesh.asShape
         case Right(sceneLight: Light)    => light = Some(sceneLight.asLight)
         case _                           => //nop
       }

@@ -48,7 +48,7 @@ object TestApp extends App {
 
   //build the world
   val light = PointLight(Point(-10, 4, -5), Color.White)
-  val world = World.create(Seq(floor, teapot), light)
+  val world = World.create(Seq(teapot), light)
 
   Log.info("World created")
   //camera

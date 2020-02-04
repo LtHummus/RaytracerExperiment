@@ -1,7 +1,10 @@
 package com.lthummus.raytracer.parsers.scene
 
+import java.io.File
+
 import com.lthummus.raytracer.camera.SimpleCamera
 import com.lthummus.raytracer.lights.PointLight
+import com.lthummus.raytracer.parsers.ObjFile
 import com.lthummus.raytracer.primitive.{Color, Matrix, Point, Tuple, Vec}
 import com.lthummus.raytracer.shapes.{Cube, Plane, Shape, Sphere}
 import com.lthummus.raytracer.tools.{RotateX, RotateY, RotateZ, Scale, Sheer, Translate, ViewTransformation}
@@ -12,18 +15,22 @@ sealed trait SceneInput {
   val kind: String
 }
 
-@JsonCodec case class Camera(kind: String, height: Int, width: Int, fieldOfView: Double, location: Seq[Double], pointing: Seq[Double], up: Seq[Double]) extends SceneInput {
-  def asSimpleCamera: SimpleCamera = SimpleCamera(height, width, fieldOfView, ViewTransformation(Vec(location), Vec(pointing), Vec(up)))
-}
-@JsonCodec case class Material(kind: String, color: Seq[Double]) extends SceneInput
-@JsonCodec case class Primitive(kind: String, shape: String, transforms: Option[Seq[Transform]]) extends SceneInput {
-  private def generateTransform: Matrix = {
+trait Transformable {
+  val transforms: Option[Seq[Transform]]
+
+  protected def generateTransform: Matrix = {
     transforms match {
       case None                => Matrix.Identity4
       case Some(transformList) => transformList.map(_.asMatrix).foldRight(Matrix.Identity4)(_ * _)
     }
   }
+}
 
+@JsonCodec case class Camera(kind: String, height: Int, width: Int, fieldOfView: Double, location: Seq[Double], pointing: Seq[Double], up: Seq[Double]) extends SceneInput {
+  def asSimpleCamera: SimpleCamera = SimpleCamera(height, width, fieldOfView, ViewTransformation(Vec(location), Vec(pointing), Vec(up)))
+}
+@JsonCodec case class Material(kind: String, color: Seq[Double]) extends SceneInput
+@JsonCodec case class Primitive(kind: String, shape: String, transforms: Option[Seq[Transform]]) extends SceneInput with Transformable {
   //TODO: this should probably be a level above so we can apply materials properly
   def asShape: Shape = {
     shape match {
@@ -34,6 +41,11 @@ sealed trait SceneInput {
   }
 }
 
+@JsonCodec case class Mesh(kind: String, source: String, transforms: Option[Seq[Transform]]) extends SceneInput with Transformable {
+  def asShape: Shape = {
+    ObjFile.fromFile(new File(source)).parentGroup.copy(transformation = generateTransform)
+  }
+}
 @JsonCodec case class Light(kind: String, shape: String, pos: Seq[Double], color: Seq[Double]) extends SceneInput {
   def asLight: PointLight = PointLight(Point(pos), Color(color))
 }
@@ -59,6 +71,7 @@ object SceneInput {
       case Right("primitive") => json.as[Primitive]
       case Right("material")  => json.as[Material]
       case Right("light")     => json.as[Light]
+      case Right("mesh")      => json.as[Mesh]
       case _                  => Left(DecodingFailure("Unknown kind", List()))
     }
   }
