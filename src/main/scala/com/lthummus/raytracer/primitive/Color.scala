@@ -28,6 +28,8 @@ case class Color(red: Double, green: Double, blue: Double) {
 }
 
 object Color {
+  def apply(n: Seq[Double]): Color = Color(n(0), n(1), n(2))
+
   val Black: Color = Color(0, 0, 0)
   val Red: Color = Color(1, 0, 0)
   val Green: Color = Color(0, 1, 0)

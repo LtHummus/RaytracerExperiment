@@ -42,10 +42,18 @@ object Point {
   def apply(x: Double, y: Double, z: Double): Tuple = {
     Tuple(x, y, z, 1.0d)
   }
+
+  def apply(n: Seq[Double]): Tuple = {
+    Tuple(n(0), n(1), n(2), 1.0d)
+  }
 }
 
 object Vec {
   def apply(x: Double, y: Double, z: Double): Tuple = {
     Tuple(x, y, z, 0.0d)
+  }
+
+  def apply(n: Seq[Double]): Tuple = {
+    Tuple(n(0), n(1), n(2), 0.0d)
   }
 }
