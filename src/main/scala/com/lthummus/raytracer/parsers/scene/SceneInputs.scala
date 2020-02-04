@@ -3,7 +3,7 @@ package com.lthummus.raytracer.parsers.scene
 import com.lthummus.raytracer.camera.SimpleCamera
 import com.lthummus.raytracer.lights.PointLight
 import com.lthummus.raytracer.primitive.{Color, Matrix, Point, Tuple, Vec}
-import com.lthummus.raytracer.shapes.{Cube, Shape, Sphere}
+import com.lthummus.raytracer.shapes.{Cube, Plane, Shape, Sphere}
 import com.lthummus.raytracer.tools.{RotateX, RotateY, RotateZ, Scale, Sheer, Translate, ViewTransformation}
 import io.circe.{Decoder, DecodingFailure, Json}
 import io.circe.generic.JsonCodec
@@ -24,10 +24,12 @@ sealed trait SceneInput {
     }
   }
 
+  //TODO: this should probably be a level above so we can apply materials properly
   def asShape: Shape = {
     shape match {
       case "sphere" => Sphere(generateTransform)
-      case "cube" => Cube(generateTransform)
+      case "cube"   => Cube(generateTransform)
+      case "plane"  => Plane(generateTransform)
     }
   }
 }
@@ -40,12 +42,12 @@ sealed trait SceneInput {
   def asMatrix: Matrix = {
     kind match {
       case "translate" => Translate(arguments(0), arguments(1), arguments(2))
-      case "scale" => Scale(arguments(0), arguments(1), arguments(2))
-      case "rotateX" => RotateX(arguments(0))
-      case "rotateY" => RotateY(arguments(0))
-      case "rotateZ" => RotateZ(arguments(0))
-      case "sheer" => Sheer(arguments(0), arguments(1), arguments(2), arguments(3), arguments(4), arguments(5))
-      case _ => throw new IllegalArgumentException(s"unknown transform: $kind")
+      case "scale"     => Scale(arguments(0), arguments(1), arguments(2))
+      case "rotateX"   => RotateX(arguments(0))
+      case "rotateY"   => RotateY(arguments(0))
+      case "rotateZ"   => RotateZ(arguments(0))
+      case "sheer"     => Sheer(arguments(0), arguments(1), arguments(2), arguments(3), arguments(4), arguments(5))
+      case _           => throw new IllegalArgumentException(s"unknown transform: $kind")
     }
   }
 }
@@ -53,11 +55,11 @@ sealed trait SceneInput {
 object SceneInput {
   def decode(json: Json): Decoder.Result[SceneInput] = {
     (json \\ "kind").head.as[String] match {
-      case Right("camera") => json.as[Camera]
+      case Right("camera")    => json.as[Camera]
       case Right("primitive") => json.as[Primitive]
-      case Right("material") => json.as[Material]
-      case Right("light") => json.as[Light]
-      case _                 => Left(DecodingFailure("Unknown kind", List()))
+      case Right("material")  => json.as[Material]
+      case Right("light")     => json.as[Light]
+      case _                  => Left(DecodingFailure("Unknown kind", List()))
     }
   }
 }

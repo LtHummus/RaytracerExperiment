@@ -24,12 +24,18 @@ private[scene] class HummusSceneBuilder(data: String) {
 
 
       everything.foreach {
-        case Left(error) => Log.warn(s"Error: $error")
-        case Right(sceneObject: Camera) => camera = Some(sceneObject.asSimpleCamera)
+        case Left(error)                 => Log.warn(s"Error: $error")
+        case Right(sceneObject: Camera)  => camera = Some(sceneObject.asSimpleCamera)
         case Right(primitive: Primitive) => shapes += primitive.asShape
-        case Right(sceneLight: Light) => light = Some(sceneLight.asLight)
-        case _ => //nop
+        case Right(sceneLight: Light)    => light = Some(sceneLight.asLight)
+        case _                           => //nop
       }
+
+      if (camera.isEmpty)
+        Log.warn("No camera defined in file!")
+
+      if (light.isEmpty)
+        Log.warn("No light defined in file!")
   }
 }
 
