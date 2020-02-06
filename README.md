@@ -1,5 +1,7 @@
 # Raytracer Experiment
 
+![A Sample Render](samples/spheres_and_planes.png)
+
 This is an experimental ray tracer. I don't mean it uses some experimental rendering or anything like that, it's just that I wrote it as an experiment.
 
 It's slow, and probably shouldn't be used generally, but it was fun to work on. Some of the code is still a bit messy, but it does work. An example scene definition file can be found in the `samples` directory.
