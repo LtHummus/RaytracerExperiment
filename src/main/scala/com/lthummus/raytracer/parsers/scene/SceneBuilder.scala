@@ -10,8 +10,8 @@ import io.circe.yaml
 import scala.collection.mutable
 
 
-private[scene] class HummusSceneBuilder(data: String) {
-  import HummusSceneBuilder._
+private[scene] class SceneBuilder(data: String) {
+  import SceneBuilder._
 
   val shapes = mutable.ArrayBuffer.empty[Shape]
   val materials = mutable.HashMap.empty[String, SimpleMaterial]
@@ -43,6 +43,6 @@ private[scene] class HummusSceneBuilder(data: String) {
   }
 }
 
-object HummusSceneBuilder {
+object SceneBuilder {
   private val Log: Logger = Logger("HummusSceneBuilder")
 }
