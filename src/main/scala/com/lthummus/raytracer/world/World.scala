@@ -10,8 +10,6 @@ import com.lthummus.raytracer.tools.Transformations
 
 import scala.collection.mutable
 
-
-//todo: should light source be singular? might as well add support for multiple lights...
 case class World(private val objectList: mutable.ArrayBuffer[Shape], private val lightArray: mutable.Seq[PointLight]) {
 
   def objectCount: Int = objectList.length
