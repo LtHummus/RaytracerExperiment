@@ -13,10 +13,11 @@ import scala.collection.mutable
 private[scene] class SceneBuilder(data: String) {
   import SceneBuilder._
 
-  val shapes = mutable.ArrayBuffer.empty[Shape]
-  val materials = mutable.HashMap.empty[String, SimpleMaterial]
-  var camera: Option[SimpleCamera] = None
-  var lights = mutable.ArrayBuffer.empty[PointLight]
+  private[scene] val shapes = mutable.ArrayBuffer.empty[Shape]
+  private[scene] val materials = mutable.HashMap.empty[String, SimpleMaterial]
+  private[scene] var camera: Option[SimpleCamera] = None
+  private[scene] var lights = mutable.ArrayBuffer.empty[PointLight]
+  private[scene] var errored = false
 
   yaml.parser.parse(data) match {
     case Left(error) => Log.warn(s"Error parsing scene file: $error"); throw new Exception(error.message)
@@ -24,9 +25,8 @@ private[scene] class SceneBuilder(data: String) {
       val c = parsedTree.asArray
       val everything = c.get.map(SceneInput.decode)
 
-
       everything.foreach {
-        case Left(error)                 => Log.warn(s"Error: $error")
+        case Left(error)                 => Log.warn(s"Error: ${error.message} -- ${error.history.mkString(" -> ")}"); errored = true
         case Right(sceneObject: Camera)  => camera = Some(sceneObject.asSimpleCamera)
         case Right(primitive: Primitive) => shapes += primitive.asShape(materials)
         case Right(mesh: Mesh)           => shapes += mesh.asShape
@@ -35,14 +35,18 @@ private[scene] class SceneBuilder(data: String) {
         case _                           => //nop
       }
 
-      if (camera.isEmpty)
+      if (camera.isEmpty) {
+        errored = true
         Log.warn("No camera defined in file!")
+      }
 
-      if (lights.isEmpty)
+      if (lights.isEmpty) {
+        errored = true
         Log.warn("No light defined in file!")
+      }
   }
 }
 
 object SceneBuilder {
-  private val Log: Logger = Logger("HummusSceneBuilder")
+  private val Log: Logger = Logger("SceneBuilder")
 }

@@ -107,7 +107,8 @@ object SceneInput {
       case Right("material")  => json.as[Material]
       case Right("light")     => json.as[Light]
       case Right("mesh")      => json.as[Mesh]
-      case _                  => Left(DecodingFailure("Unknown kind", List()))
+      case Right(x)           => Left(DecodingFailure(s"Unknown kind: $x", List()))
+      case Left(x)            => Left(DecodingFailure(s"Failed to decode: ${x.getMessage()}", List()))
     }
   }
 }

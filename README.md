@@ -1,6 +1,6 @@
 # Raytracer Experiment
 
-![A Sample Render](samples/spheres_and_planes.png)
+![A Sample Render](samples/multiple_lights.png)
 
 This is an experimental ray tracer. I don't mean it uses some experimental rendering or anything like that, it's just that I wrote it as an experiment.
 

@@ -1,0 +1,101 @@
+- kind: camera
+  height: 500
+  width: 500
+  fieldOfView: 1.05
+  location: [-7, 4, 0]
+  pointing: [0, 1, 0]
+  up: [0, 1, 0]
+
+- kind: material
+  name: def
+  color: [0.8, 0.8, 0.8]
+  ambient: 0.1
+  diffuse: 0.9
+  specular: 0.9
+  shininess: 200.0
+  reflective: 0.0
+  transparency: 0.0
+  refractiveIndex: 1.5
+
+- kind: material
+  name: glass
+  color: [0.1, 0.1, 0.1]
+  ambient: 0.2
+  diffuse: 0.1
+  specular: 0.8
+  shininess: 200.0
+  reflective: 0.4
+  transparency: 0.8
+  refractiveIndex: 1.5
+
+- kind: material
+  name: floor
+  color: [0, 0, 0]
+  ambient: 0.1
+  diffuse: 0.4
+  specular: 0.5
+  shininess: 200.0
+  reflective: 0.2
+  transparency: 0.0
+  refractiveIndex: 1.5
+  pattern:
+    kind: checker
+    colorA: [0.5, 0.5, 0.5]
+    colorB: [0.75, 0.75, 0.75]
+
+- kind: primitive
+  shape: sphere
+  material: def
+  transforms:
+    - kind: scale
+      arguments: [2, 2, 2]
+    - kind: translate
+      arguments: [2, 1, 0]
+
+- kind: primitive
+  shape: sphere
+  material: glass
+  transforms:
+    - kind: translate
+      arguments: [-1, 1, 2]
+
+
+- kind: primitive
+  shape: cube
+  material: def
+  transforms:
+    - kind: scale
+      arguments: [1.2, 1.2, 1.2]
+    - kind: translate
+      arguments: [-1, 1, -2]
+    - kind: rotateY
+      arguments: [0.7853975]
+
+- kind: primitive
+  shape: plane
+  material: floor
+
+- kind: primitive
+  shape: plane
+  material: floor
+  transforms:
+    - kind: rotateZ
+      arguments: [1.570795]
+    - kind: translate
+      arguments: [-10, -10, -10]
+
+- kind: light
+  shape: point
+  pos: [-5, 12, 0]
+  color: [0, 1, 0]
+
+- kind: light
+  shape: point
+  pos: [-5, 12, -5]
+  color: [1, 0, 0]
+
+- kind: light
+  shape: point
+  pos: [-5, 12, 5]
+  color: [0, 0, 1]
+

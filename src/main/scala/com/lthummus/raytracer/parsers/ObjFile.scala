@@ -46,6 +46,7 @@ object ObjFile {
   private val FaceRegex = "f\\s+(.*)".r
   private val GroupRegex = "g\\s+(.*)".r
   private val EmptyStringRegex = "^\\s+$".r
+  private val CommentRegex = "^#.*$".r
 
   def fromRawString(contents: String): ParseResults = fromLines(contents.linesIterator.toSeq)
   def fromFile(file: File): ParseResults = {
@@ -64,10 +65,11 @@ object ObjFile {
     line match {
       case VertexRegex(a, b, c) => ParsedVertex(Point(a.toDouble, b.toDouble, c.toDouble))
       case NormalRegex(a, b, c) => ParsedNormal(Vec(a.toDouble, b.toDouble, c.toDouble))
-      case FaceRegex(nums) => ParsedFace(nums.split(" ").map(FaceData.apply).toSeq)
-      case GroupRegex(name) => ParsedGroupName(name)
-      case EmptyStringRegex() => EmptyString
-      case _ => Unknown(line)
+      case FaceRegex(nums)      => ParsedFace(nums.split(" ").map(FaceData.apply).toSeq)
+      case GroupRegex(name)     => ParsedGroupName(name)
+      case CommentRegex()       => EmptyString
+      case EmptyStringRegex()   => EmptyString
+      case _                    => Unknown(line)
     }
   }
 

@@ -18,6 +18,11 @@ object Main extends App {
     sceneSource.close()
 
     val scene = ParsedScene.fromRawText(lines)
+    if (scene.errored) {
+      Log.warn("Error during parsing")
+      System.exit(1)
+    }
+
     val world = World.create(scene.objects, scene.lights)
     val render = scene.camera.render(world)
 
