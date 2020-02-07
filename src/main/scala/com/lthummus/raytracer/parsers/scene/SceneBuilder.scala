@@ -16,7 +16,7 @@ private[scene] class SceneBuilder(data: String) {
   val shapes = mutable.ArrayBuffer.empty[Shape]
   val materials = mutable.HashMap.empty[String, SimpleMaterial]
   var camera: Option[SimpleCamera] = None
-  var light: Option[PointLight] = None
+  var lights = mutable.ArrayBuffer.empty[PointLight]
 
   yaml.parser.parse(data) match {
     case Left(error) => Log.warn(s"Error parsing scene file: $error"); throw new Exception(error.message)
@@ -30,7 +30,7 @@ private[scene] class SceneBuilder(data: String) {
         case Right(sceneObject: Camera)  => camera = Some(sceneObject.asSimpleCamera)
         case Right(primitive: Primitive) => shapes += primitive.asShape(materials)
         case Right(mesh: Mesh)           => shapes += mesh.asShape
-        case Right(sceneLight: Light)    => light = Some(sceneLight.asLight)
+        case Right(sceneLight: Light)    => lights += sceneLight.asLight
         case Right(material: Material)   => materials.put(material.name, material.asSimpleMaterial)
         case _                           => //nop
       }
@@ -38,7 +38,7 @@ private[scene] class SceneBuilder(data: String) {
       if (camera.isEmpty)
         Log.warn("No camera defined in file!")
 
-      if (light.isEmpty)
+      if (lights.isEmpty)
         Log.warn("No light defined in file!")
   }
 }

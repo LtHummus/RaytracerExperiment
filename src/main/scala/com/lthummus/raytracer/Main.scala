@@ -18,7 +18,7 @@ object Main extends App {
     sceneSource.close()
 
     val scene = ParsedScene.fromRawText(lines)
-    val world = World.create(scene.objects, scene.light)
+    val world = World.create(scene.objects, scene.lights)
     val render = scene.camera.render(world)
 
     config.format match {

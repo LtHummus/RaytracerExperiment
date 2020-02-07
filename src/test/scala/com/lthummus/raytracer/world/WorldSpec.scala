@@ -18,7 +18,7 @@ class WorldSpec extends AnyFlatSpec with Matchers with TolerantEquality with Spe
   "World" should "be able to be initialized with an empty world" in {
     val w = World.Empty
 
-    w.light mustBe None
+    w.lights must have length 0
     w.objectCount mustBe 0
   }
 
@@ -38,8 +38,8 @@ class WorldSpec extends AnyFlatSpec with Matchers with TolerantEquality with Spe
     s2.material mustBe SimpleMaterial.Default
 
 
-    assert(w.light.isDefined)
-    assert(w.light.exists(_.pos == Point(-10, 10, -10)))
+    assert(w.lights.nonEmpty)
+    assert(w.lights.head.pos == Point(-10, 10, -10))
 
   }
 
@@ -67,7 +67,7 @@ class WorldSpec extends AnyFlatSpec with Matchers with TolerantEquality with Spe
   }
 
   it should "also be able to handle intersections from the inside" in {
-    val w = World.Default.copy(lightSource = Some(PointLight(Point(0, 0.25, 0), Color(1, 1, 1))))
+    val w = World.Default.copy(lightArray = mutable.ArrayBuffer(PointLight(Point(0, 0.25, 0), Color(1, 1, 1))))
     val r = Ray(Point(0, 0, 0), Vec(0, 0, 1))
     val s = w.objects(1)
     val i = Intersection(0.5, s)
@@ -153,7 +153,7 @@ class WorldSpec extends AnyFlatSpec with Matchers with TolerantEquality with Spe
 
     val newOuter = outer.copy(material = outer.material.copy(ambient = 1.0))
     val newInner = inner.copy(material = inner.material.copy(ambient = 1.0))
-    val newWorld = World(mutable.ArrayBuffer(newOuter, newInner), Some(PointLight(Point(-10, 10, -10), Color(1, 1, 1))))
+    val newWorld = World(mutable.ArrayBuffer(newOuter, newInner), mutable.ArrayBuffer(PointLight(Point(-10, 10, -10), Color(1, 1, 1))))
 
     val r = Ray(Point(0, 0, 0.75), Vec(0, 0, -1))
     assert(newWorld.colorAt(r) === newInner.material.color)
@@ -185,32 +185,43 @@ class WorldSpec extends AnyFlatSpec with Matchers with TolerantEquality with Spe
     w.reflectedColor(info, lifetime = 0) mustBe Color.Black
   }
 
+
+  it should "work with multiple light sources" in {
+    val a = Sphere()
+    val l1 = PointLight(Point(-5, 10, -5), Color.Red)
+    val l2 = PointLight(Point(-5, 10, 5), Color.Blue)
+
+    val w = World.create(Seq(a), Seq(l1, l2))
+
+    assert(w.colorAt(Ray(Point(-5, 1, 0), Vec(1, 0, 0))) === Color(0.8077, 0.0, 0.8077))
+  }
+
   "isShadowed" should "say no shadow when nothing is between point and light" in {
     val w = World.Default
     val p = Point(0, 10, 0)
 
-    w.isShadowed(p) mustBe false
+    w.isShadowed(w.lights.head, p) mustBe false
   }
 
   it should "say yes shadow when object between point and light" in {
     val w = World.Default
     val p = Point(10, -10, 10)
 
-    w.isShadowed(p) mustBe true
+    w.isShadowed(w.lights.head, p) mustBe true
   }
 
   it should "say no shadow when object behind light" in {
     val w = World.Default
     val p = Point(-20, 20, -20)
 
-    w.isShadowed(p) mustBe false
+    w.isShadowed(w.lights.head, p) mustBe false
   }
 
   it should "say no shadow when point between object and light" in {
     val w = World.Default
     val p = Point(-2, 2, -2)
 
-    w.isShadowed(p) mustBe false
+    w.isShadowed(w.lights.head, p) mustBe false
   }
 
   "reflections" should "figure out the reflected color for a nonreflective material" in {
@@ -258,7 +269,7 @@ class WorldSpec extends AnyFlatSpec with Matchers with TolerantEquality with Spe
     val m = s.material
 
     val newS = s.copy(material = m.copy(transparency = 1.0, refractiveIndex = 1.5))
-    val w2 = World.create(Seq(newS, w.objects(1)), w.light.get)
+    val w2 = World.create(Seq(newS, w.objects(1)), w.lights.head)
 
     val r = Ray(Point(0, 0, -5), Vec(0, 0, 1))
     val xs = Seq(Intersection(4, newS), Intersection(6, newS))
@@ -274,7 +285,7 @@ class WorldSpec extends AnyFlatSpec with Matchers with TolerantEquality with Spe
     val m = s.material
 
     val newS = s.copy(material = m.copy(transparency = 1.0, refractiveIndex = 1.5))
-    val w2 = World.create(Seq(newS, w.objects(1)), w.light.get)
+    val w2 = World.create(Seq(newS, w.objects(1)), w.lights.head)
 
     val r = Ray(Point(0, 0, HalfRootTwo), Vec(0, 1, 0))
     val xs = Seq(
@@ -291,7 +302,7 @@ class WorldSpec extends AnyFlatSpec with Matchers with TolerantEquality with Spe
     val a = Sphere(Matrix.Identity4, World.Default.objects.head.material.copy(ambient = 1.0, pattern = Some(SamplePattern())))
     val b = Sphere(Transformations.scale(0.5, 0.5, 0.5), SimpleMaterial.Default.copy(transparency = 1.0, refractiveIndex = 1.5))
 
-    val w = World.create(Seq(a, b), World.Default.light.get)
+    val w = World.create(Seq(a, b), World.Default.lights.head)
     val r = Ray(Point(0, 0, 0.1), Vec(0, 1, 0))
 
     val xs = Seq(

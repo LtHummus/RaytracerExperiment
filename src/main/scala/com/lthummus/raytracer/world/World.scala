@@ -12,10 +12,10 @@ import scala.collection.mutable
 
 
 //todo: should light source be singular? might as well add support for multiple lights...
-case class World(private val objectList: mutable.ArrayBuffer[Shape], private var lightSource: Option[PointLight]) {
+case class World(private val objectList: mutable.ArrayBuffer[Shape], private val lightArray: mutable.Seq[PointLight]) {
 
   def objectCount: Int = objectList.length
-  def light: Option[PointLight] = lightSource
+  def lights: Seq[PointLight] = lightArray.toSeq
   def objects: Seq[Shape] = objectList.toSeq
 
   def appendShape(s: Shape): World = {
@@ -28,7 +28,8 @@ case class World(private val objectList: mutable.ArrayBuffer[Shape], private var
   }
 
   def shadeHit(info: IntersectionInformation, lifetime: Int = 5): Color = {
-    val surface = info.obj.material.lighting(info.obj, lightSource.get, info.point, info.eyeVector, info.normalVector, isShadowed(info.overPoint))
+    val surfaceColors = lightArray.map(x => info.obj.material.lighting(info.obj, x, info.point, info.eyeVector, info.normalVector, isShadowed(x, info.overPoint)))
+    val surface = surfaceColors.foldLeft(Color.Black)(_ + _)
     val reflected = reflectedColor(info, lifetime)
     val refracted = refractedColor(info, lifetime)
 
@@ -80,8 +81,8 @@ case class World(private val objectList: mutable.ArrayBuffer[Shape], private var
     }
   }
 
-  def isShadowed(p: Tuple): Boolean = {
-    val v = lightSource.get.pos - p
+  def isShadowed(l: PointLight, p: Tuple): Boolean = {
+    val v = l.pos - p
     val distance = v.magnitude
     val direction = v.normalized
 
@@ -91,7 +92,7 @@ case class World(private val objectList: mutable.ArrayBuffer[Shape], private var
 }
 
 object World {
-  def Empty: World = World(mutable.ArrayBuffer.empty[Shape], None)
+  def Empty: World = World(mutable.ArrayBuffer.empty[Shape], mutable.ArrayBuffer.empty[PointLight])
 
   def Default: World = {
     val l = PointLight(Point(-10, 10, -10), Color(1, 1, 1))
@@ -99,9 +100,9 @@ object World {
     val s1 = Sphere(Matrix.Identity4, s1Material)
     val s2 = Sphere(Transformations.scale(0.5, 0.5, 0.5))
 
-    World(mutable.ArrayBuffer(s1, s2), Some(l))
+    World(mutable.ArrayBuffer(s1, s2), mutable.ArrayBuffer(l))
   }
 
-  def create(objects: Seq[Shape], light: PointLight): World = World(mutable.ArrayBuffer(objects: _*), Some(light))
-
+  def create(objects: Seq[Shape], light: PointLight): World = World(mutable.ArrayBuffer(objects: _*), mutable.ArrayBuffer(light))
+  def create(objects: Seq[Shape], lights: Seq[PointLight]): World = World(mutable.ArrayBuffer(objects: _*), mutable.ArrayBuffer(lights: _*))
 }
