@@ -10,7 +10,7 @@ import com.lthummus.raytracer.tools.Transformations
 
 import scala.collection.mutable
 
-case class World(private val objectList: mutable.ArrayBuffer[Shape], private val lightArray: mutable.Seq[PointLight]) {
+case class World(private val objectList: mutable.ArrayBuffer[Shape], private val lightArray: mutable.Seq[PointLight], background: Color = Color.Black) {
 
   def objectCount: Int = objectList.length
   def lights: Seq[PointLight] = lightArray.toSeq
@@ -43,7 +43,7 @@ case class World(private val objectList: mutable.ArrayBuffer[Shape], private val
     val allIntersections = intersections(ray)
 
     allIntersections.hit match {
-      case None      => Color.Black //ray doesn't hit anything
+      case None      => background //ray doesn't hit anything
       case Some(hit) => shadeHit(hit.prepareComputation(ray, allIntersections), lifetime)
     }
   }

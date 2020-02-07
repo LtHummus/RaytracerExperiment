@@ -139,6 +139,12 @@ class WorldSpec extends AnyFlatSpec with Matchers with TolerantEquality with Spe
     assert(w.colorAt(r) === Color(0, 0, 0))
   }
 
+  it should "handle alternate background colors" in {
+    val w = World.Default.copy(background = Color.Blue)
+    val r = Ray(Point(0, 0, -5), Vec(0, 1, 0))
+    assert(w.colorAt(r) === Color.Blue)
+  }
+
   it should "determine color when a ray hits" in {
     val w = World.Default
     val r = Ray(Point(0, 0, -5), Vec(0, 0, 1))
