@@ -5,7 +5,6 @@ import com.lthummus.raytracer.primitive.{Intersection, Matrix, Point, Tuple}
 import com.lthummus.raytracer.rays.Ray
 
 case class Sphere(transformation: Matrix = Matrix.Identity4, var material: SimpleMaterial = SimpleMaterial.Default, var parent: Option[Shape] = None) extends Shape {
-  type T = Sphere
 
   override private[shapes] def shapeNormalAt(p: Tuple, info: Option[Intersection] = None): Tuple = p - Point.Origin
 

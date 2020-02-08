@@ -20,8 +20,6 @@ case class SmoothTriangle(p1: Tuple,
   val normal: Tuple = (e2 x e1).normalized
 
 
-  override type T = SmoothTriangle
-
   override private[shapes] def shapeNormalAt(p: Tuple, info: Option[Intersection] = None): Tuple = {
     info match {
       case None    => throw new IllegalArgumentException("Smooth triangles should have IntersectionInfo")

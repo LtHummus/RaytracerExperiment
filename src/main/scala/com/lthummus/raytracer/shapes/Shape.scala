@@ -6,7 +6,6 @@ import com.lthummus.raytracer.rays.Ray
 
 abstract class Shape() {
 
-  type T <: Shape
   val transformation: Matrix
 
   var material: SimpleMaterial

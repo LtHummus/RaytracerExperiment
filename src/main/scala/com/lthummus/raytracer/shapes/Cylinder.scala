@@ -11,7 +11,6 @@ case class Cylinder(minimum: Double = Double.NegativeInfinity,
                     transformation: Matrix = Matrix.Identity4,
                     var material: SimpleMaterial = SimpleMaterial.Default,
                     var parent: Option[Shape] = None) extends Shape {
-  override type T = Cylinder
 
   override private[shapes] def shapeNormalAt(p: Tuple, info: Option[Intersection] = None): Tuple = {
     val d = p.x * p.x + p.z * p.z

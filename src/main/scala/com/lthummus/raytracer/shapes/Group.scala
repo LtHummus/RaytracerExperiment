@@ -8,7 +8,6 @@ case class Group(var children: Seq[Shape] = Seq(), transformation: Matrix = Matr
   //on construction, force all of our children to have us as parents
   children.foreach(_.parent = Some(this))
 
-  override type T = Group
 
   def setMaterial(m: SimpleMaterial): Group = {
     children.foreach(_.material = m)

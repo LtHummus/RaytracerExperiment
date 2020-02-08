@@ -12,7 +12,6 @@ case class Cone(minimum: Double = Double.NegativeInfinity,
                 var material: SimpleMaterial = SimpleMaterial.Default,
                 var parent: Option[Shape] = None
                ) extends Shape {
-  override type T = Cone
 
   override private[shapes] def shapeNormalAt(p: Tuple, info: Option[Intersection] = None): Tuple = {
     val d = p.x * p.x + p.z * p.z

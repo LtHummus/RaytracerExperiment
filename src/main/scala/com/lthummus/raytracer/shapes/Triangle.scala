@@ -16,7 +16,6 @@ case class Triangle(p1: Tuple,
   val e2: Tuple = p3 - p1
   val normal: Tuple = (e2 x e1).normalized
 
-  override type T = Triangle
   override private[shapes] def shapeNormalAt(p: Tuple, info: Option[Intersection] = None): Tuple = normal
   override private[shapes] def shapeIntersectionFrom(r: Ray): Seq[Intersection] = {
     val dirCrossE2 = r.direction x e2
