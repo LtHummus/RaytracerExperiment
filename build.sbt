@@ -8,6 +8,9 @@ scalacOptions := Seq("-Ymacro-annotations")
 
 enablePlugins(JavaAppPackaging)
 
+assemblyJarName in assembly := "raytracer.jar"
+mainClass in assembly := Some("com.lthummus.raytracer.Main")
+
 //test dependencies
 libraryDependencies += "org.scalactic" %% "scalactic" % "3.1.0"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.1.0" % "test"
