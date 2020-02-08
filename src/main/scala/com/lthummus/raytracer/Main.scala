@@ -12,6 +12,8 @@ case class RenderOptions(source: Option[File] = None, format: String = "png", ou
 
 object Main extends App {
 
+  private val Log = Logger("Main")
+
   private def run(config: RenderOptions): Unit = {
     val sceneSource = scala.io.Source.fromFile(config.source.get)
     val lines = sceneSource.getLines().mkString("\n")
@@ -23,17 +25,25 @@ object Main extends App {
       System.exit(1)
     }
 
-    val world = World.create(scene.objects, scene.lights)
+    val world = scene.toWorld
+    Log.info(s"World created. Contains ${world.objectCount} objects and ${world.lights.size} lights")
+
+    Log.info("Beginning render")
+    val start = System.currentTimeMillis()
     val render = scene.camera.render(world)
+    val duration = System.currentTimeMillis() - start
+    Log.info(s"Render complete. Took ${duration}ms")
+
 
     config.format match {
       case "png" => ImageIO.write(render.asBufferedImage, "png", config.output.get)
       case "ppm" => val fw = new FileWriter(config.output.get); fw.write(render.asPpm); fw.close()
       case _     => Log.warn("Invalid file format")
     }
+
+    Log.info(s"Wrote output ${config.output.get}")
   }
 
-  private val Log = Logger("Main")
   val builder = OParser.builder[RenderOptions]
 
   val parser = {
@@ -66,6 +76,6 @@ object Main extends App {
 
   OParser.parse(parser, args, RenderOptions()) match {
     case Some(config) => run(config)
-    case None => //nop
+    case None => System.exit(1)
   }
 }

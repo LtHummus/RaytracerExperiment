@@ -83,6 +83,8 @@ trait Transformable {
   def asLight: PointLight = PointLight(Point(pos), Color(color))
 }
 
+@JsonCodec case class WorldInfo(kind: String, bgColor: Seq[Double]) extends SceneInput
+
 @JsonCodec case class Transform(kind: String, arguments: Seq[Double]) {
   def asMatrix: Matrix = {
     kind match {
@@ -117,6 +119,7 @@ object SceneInput {
       case Right("material")  => json.as[Material]
       case Right("light")     => json.as[Light]
       case Right("mesh")      => json.as[Mesh]
+      case Right("world")     => json.as[WorldInfo]
       case Right(x)           => Left(DecodingFailure(s"Unknown kind: $x", List()))
       case Left(x)            => Left(DecodingFailure(s"Failed to decode: ${x.getMessage()}", List()))
     }

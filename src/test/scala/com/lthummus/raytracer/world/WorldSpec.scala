@@ -197,7 +197,7 @@ class WorldSpec extends AnyFlatSpec with Matchers with TolerantEquality with Spe
     val l1 = PointLight(Point(-5, 10, -5), Color.Red)
     val l2 = PointLight(Point(-5, 10, 5), Color.Blue)
 
-    val w = World.create(Seq(a), Seq(l1, l2))
+    val w = World.createWithMultipleLights(Seq(a), Seq(l1, l2))
 
     assert(w.colorAt(Ray(Point(-5, 1, 0), Vec(1, 0, 0))) === Color(0.8077, 0.0, 0.8077))
   }

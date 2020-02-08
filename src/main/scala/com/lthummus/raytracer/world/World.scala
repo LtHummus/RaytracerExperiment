@@ -101,6 +101,6 @@ object World {
     World(mutable.ArrayBuffer(s1, s2), mutable.ArrayBuffer(l))
   }
 
-  def create(objects: Seq[Shape], light: PointLight): World = World(mutable.ArrayBuffer(objects: _*), mutable.ArrayBuffer(light))
-  def create(objects: Seq[Shape], lights: Seq[PointLight]): World = World(mutable.ArrayBuffer(objects: _*), mutable.ArrayBuffer(lights: _*))
+  def create(objects: Seq[Shape], light: PointLight, background: Color = Color.Black): World = World(mutable.ArrayBuffer(objects: _*), mutable.ArrayBuffer(light), background)
+  def createWithMultipleLights(objects: Seq[Shape], lights: Seq[PointLight], background: Color = Color.Black): World = World(mutable.ArrayBuffer(objects: _*), mutable.ArrayBuffer(lights: _*), background)
 }
