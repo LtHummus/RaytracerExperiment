@@ -21,11 +21,11 @@ case class World(private val objectList: mutable.ArrayBuffer[Shape], private val
     this
   }
 
-  def intersections(ray: Ray): Seq[Intersection] = {
+  private[world] def intersections(ray: Ray): Seq[Intersection] = {
     objects.flatMap(_.intersections(ray)).sorted
   }
 
-  def shadeHit(info: IntersectionInformation, lifetime: Int = 5): Color = {
+  private[world] def shadeHit(info: IntersectionInformation, lifetime: Int = 5): Color = {
     val surfaceColors = lightArray.map(x => info.obj.material.lighting(info.obj, x, info.point, info.eyeVector, info.normalVector, isShadowed(x, info.overPoint)))
     val surface = surfaceColors.foldLeft(Color.Black)(_ + _)
     val reflected = reflectedColor(info, lifetime)
@@ -48,7 +48,7 @@ case class World(private val objectList: mutable.ArrayBuffer[Shape], private val
     }
   }
 
-  def reflectedColor(info: IntersectionInformation, lifetime: Int = 5): Color = {
+  private[world] def reflectedColor(info: IntersectionInformation, lifetime: Int = 5): Color = {
     if (lifetime <= 0 || info.obj.material.reflective == 0) {
       Color.Black
     } else {
@@ -59,7 +59,7 @@ case class World(private val objectList: mutable.ArrayBuffer[Shape], private val
     }
   }
 
-  def refractedColor(info: IntersectionInformation, lifetime: Int = 5): Color = {
+  private[world] def refractedColor(info: IntersectionInformation, lifetime: Int = 5): Color = {
     if (lifetime <= 0 || info.obj.material.transparency == 0) {
       Color.Black
     } else {
@@ -79,7 +79,7 @@ case class World(private val objectList: mutable.ArrayBuffer[Shape], private val
     }
   }
 
-  def isShadowed(l: PointLight, p: Tuple): Boolean = {
+  private[world] def isShadowed(l: PointLight, p: Tuple): Boolean = {
     val v = l.pos - p
     val distance = v.magnitude
     val direction = v.normalized
