@@ -45,7 +45,7 @@ object ObjFile {
   private val NormalRegex = "vn\\s+([-\\d\\.]+) ([-\\d\\.]+) ([-\\d\\.]+)".r
   private val FaceRegex = "f\\s+(.*)".r
   private val GroupRegex = "g\\s+(.*)".r
-  private val EmptyStringRegex = "^\\s+$".r
+  private val EmptyStringRegex = "^\\s*$".r
   private val CommentRegex = "^#.*$".r
 
   def fromRawString(contents: String): ParseResults = fromLines(contents.linesIterator.toSeq)

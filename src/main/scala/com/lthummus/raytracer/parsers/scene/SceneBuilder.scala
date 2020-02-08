@@ -29,7 +29,7 @@ private[scene] class SceneBuilder(data: String) {
         case Left(error)                 => Log.warn(s"Error: ${error.message} -- ${error.history.mkString(" -> ")}"); errored = true
         case Right(sceneObject: Camera)  => camera = Some(sceneObject.asSimpleCamera)
         case Right(primitive: Primitive) => shapes += primitive.asShape(materials)
-        case Right(mesh: Mesh)           => shapes += mesh.asShape
+        case Right(mesh: Mesh)           => shapes += mesh.asShape(materials)
         case Right(sceneLight: Light)    => lights += sceneLight.asLight
         case Right(material: Material)   => materials.put(material.name, material.asSimpleMaterial)
         case _                           => //nop

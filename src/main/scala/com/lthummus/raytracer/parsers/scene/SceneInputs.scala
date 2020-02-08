@@ -64,9 +64,19 @@ trait Transformable {
   }
 }
 
-@JsonCodec case class Mesh(kind: String, source: String, transforms: Option[Seq[Transform]]) extends SceneInput with Transformable {
-  def asShape: Shape = {
-    ObjFile.fromFile(new File(source)).parentGroup.copy(transformation = generateTransform)
+@JsonCodec case class Mesh(kind: String, source: Option[String], contents: Option[String], material: Option[String], transforms: Option[Seq[Transform]]) extends SceneInput with Transformable {
+  def asShape(materials: mutable.HashMap[String, SimpleMaterial]): Shape = {
+    val m = (for {
+      realMatName <- material
+      realMaterial <- materials.get(realMatName)
+    } yield realMaterial).getOrElse(SimpleMaterial.Default)
+
+    val realContents = (source, contents) match {
+      case (_, Some(content)) => ObjFile.fromRawString(content)
+      case (Some(f), _) => ObjFile.fromFile(new File(f))
+      case _ => SceneInput.Log.warn("Mesh doesn't have contents or path specified"); ???
+    }
+    realContents.parentGroup.copy(transformation = generateTransform).setMaterial(m)
   }
 }
 @JsonCodec case class Light(kind: String, shape: String, pos: Seq[Double], color: Seq[Double]) extends SceneInput {

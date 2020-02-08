@@ -10,8 +10,9 @@ case class Group(var children: Seq[Shape] = Seq(), transformation: Matrix = Matr
 
   override type T = Group
 
-  def setMaterial(m: SimpleMaterial): Unit = {
+  def setMaterial(m: SimpleMaterial): Group = {
     children.foreach(_.material = m)
+    this
   }
 
   override private[shapes] def shapeNormalAt(p: Tuple, info: Option[Intersection] = None): Tuple = {
