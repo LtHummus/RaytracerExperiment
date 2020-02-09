@@ -8,7 +8,7 @@ import com.typesafe.scalalogging.Logger
 import javax.imageio.ImageIO
 import scopt.OParser
 
-case class RenderOptions(source: Option[File] = None, format: String = "png", output: Option[File] = None)
+case class RenderOptions(source: Option[File] = None, format: String = "png", output: Option[File] = None, parallel: Boolean = true)
 
 object Main extends App {
 
@@ -30,7 +30,7 @@ object Main extends App {
 
     Log.info("Beginning render")
     val start = System.currentTimeMillis()
-    val render = scene.camera.render(world)
+    val render = scene.camera.render(world, config.parallel)
     val duration = System.currentTimeMillis() - start
     Log.info(s"Render complete. Took ${duration}ms")
 
@@ -70,7 +70,11 @@ object Main extends App {
           case "ppm" => success
           case _     => failure("format must be `png` or `ppm`")
         }
-        .text("Output format. Only formats supported are png and ppm")
+        .text("Output format. Only formats supported are png and ppm"),
+
+      opt[Unit]("single-threaded")
+        .action((_, c) => c.copy(parallel = false))
+        .text("Render in a single thread only")
     )
   }
 

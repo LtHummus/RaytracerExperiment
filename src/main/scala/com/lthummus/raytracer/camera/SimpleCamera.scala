@@ -38,7 +38,15 @@ case class SimpleCamera(horizSize: Int, vertSize: Int, fov: Double, transform: M
     Ray(origin, direction)
   }
 
-  def render(world: World): Canvas = {
+  private def handlePixel(world: World, canvas: Canvas)(coords: (Int, Int)): Unit = {
+    val (x, y) = coords
+    val r = rayForPixel(x, y)
+    val c = world.colorAt(r)
+
+    canvas.setPixel(x, y, c)
+  }
+
+  def render(world: World, parallel: Boolean = true): Canvas = {
     val canvas = Canvas(horizSize, vertSize)
 
     val allPoints = for {
@@ -46,12 +54,15 @@ case class SimpleCamera(horizSize: Int, vertSize: Int, fov: Double, transform: M
       x <- 0 until horizSize
     } yield (x, y)
 
-    allPoints.par.foreach { case(x, y) =>
-      val r = rayForPixel(x, y)
-      val c = world.colorAt(r)
+    val pixelHandler: ((Int, Int)) => Unit = handlePixel(world, canvas)
 
-      canvas.setPixel(x, y, c)
+    if (parallel) {
+      allPoints.par.foreach(pixelHandler)
+    } else {
+      allPoints.foreach(pixelHandler)
     }
+
+
 
     canvas
   }
