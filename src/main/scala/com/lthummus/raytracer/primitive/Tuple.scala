@@ -1,5 +1,7 @@
 package com.lthummus.raytracer.primitive
 
+import com.typesafe.scalalogging.Logger
+
 case class Tuple(x: Double, y: Double, z: Double, w: Double) {
   def isPoint: Boolean = w == 1.0d
   def isVector: Boolean = w == 0.0d
@@ -28,6 +30,15 @@ case class Tuple(x: Double, y: Double, z: Double, w: Double) {
 }
 
 object Tuple {
+  private val Log = Logger("Tuple")
+
+  private[primitive] def patchInput(n: Seq[Double]): Seq[Double] = {
+    if (n.length < 3) {
+      Log.warn("Tuple not fully specified. Using 0s to fill in gaps")
+      n ++ Seq.fill(3)(0d)
+    } else n
+  }
+
   def apply(elements: Array[Double]): Tuple = {
     if (elements.length != 4)
       throw new IllegalArgumentException("Tuples must have exactly 4 elements")
@@ -44,7 +55,9 @@ object Point {
   }
 
   def apply(n: Seq[Double]): Tuple = {
-    Tuple(n(0), n(1), n(2), 1.0d)
+    val patchedNumbers = Tuple.patchInput(n)
+
+    Tuple(patchedNumbers(0), patchedNumbers(1), patchedNumbers(2), 1.0d)
   }
 }
 
@@ -54,6 +67,7 @@ object Vec {
   }
 
   def apply(n: Seq[Double]): Tuple = {
-    Tuple(n(0), n(1), n(2), 0.0d)
+    val patchedNumbers = Tuple.patchInput(n)
+    Tuple(patchedNumbers(0), patchedNumbers(1), patchedNumbers(2), 0.0d)
   }
 }

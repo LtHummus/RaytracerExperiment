@@ -13,11 +13,10 @@ import com.lthummus.raytracer.tools.{RotateX, RotateY, RotateZ, Scale, Sheer, Tr
 import com.typesafe.scalalogging.Logger
 import io.circe.{Decoder, DecodingFailure, Json}
 import io.circe.generic.JsonCodec
-
 import cats.implicits._
 
 import scala.collection.mutable
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 sealed trait SceneInput {
   val kind: String
@@ -100,15 +99,26 @@ trait Transformable {
 @JsonCodec case class WorldInfo(kind: String, bgColor: Seq[Double]) extends SceneInput
 
 @JsonCodec case class Transform(kind: String, arguments: Seq[Double]) {
+  import Transform._
   def asMatrix: Matrix = {
     kind match {
-      case "translate" => Translate(arguments(0), arguments(1), arguments(2))
-      case "scale"     => Scale(arguments(0), arguments(1), arguments(2))
-      case "rotateX"   => RotateX(arguments(0))
-      case "rotateY"   => RotateY(arguments(0))
-      case "rotateZ"   => RotateZ(arguments(0))
-      case "sheer"     => Sheer(arguments(0), arguments(1), arguments(2), arguments(3), arguments(4), arguments(5))
+      case "translate" => handleMatrixErrors("translate", Try(Translate(arguments(0), arguments(1), arguments(2))))
+      case "scale"     => handleMatrixErrors("scale", Try(Scale(arguments(0), arguments(1), arguments(2))))
+      case "rotateX"   => handleMatrixErrors("rotateX", Try(RotateX(arguments(0))))
+      case "rotateY"   => handleMatrixErrors("rotateY", Try(RotateY(arguments(0))))
+      case "rotateZ"   => handleMatrixErrors("rotateZ", Try(RotateZ(arguments(0))))
+      case "sheer"     => handleMatrixErrors("sheer", Try(Sheer(arguments(0), arguments(1), arguments(2), arguments(3), arguments(4), arguments(5))))
       case s: String   => SceneInput.Log.warn(s"Unknown translation kind: $s"); Matrix.Identity4
+    }
+  }
+}
+
+object Transform {
+  private val Log = Logger("Transform")
+  private def handleMatrixErrors(kind: String, potentialTransform: Try[Matrix]): Matrix = {
+    potentialTransform match {
+      case Failure(_)     => Log.warn(s"Unable to generate $kind transformation matrix. Ignoring"); Matrix.Identity4
+      case Success(value) => value
     }
   }
 }

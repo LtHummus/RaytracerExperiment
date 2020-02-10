@@ -1,5 +1,7 @@
 package com.lthummus.raytracer.primitive
 
+import com.typesafe.scalalogging.Logger
+
 case class Color(red: Double, green: Double, blue: Double) {
   def +(that: Color): Color = Color(this.red + that.red, this.green + that.green, this.blue + that.blue)
   def -(that: Color): Color = Color(this.red - that.red, this.green - that.green, this.blue - that.blue)
@@ -28,7 +30,15 @@ case class Color(red: Double, green: Double, blue: Double) {
 }
 
 object Color {
-  def apply(n: Seq[Double]): Color = Color(n(0), n(1), n(2))
+  private val Log = Logger("Color")
+
+  def apply(n: Seq[Double]): Color = {
+    val patchedNumbers = if (n.length < 3) {
+      Log.warn("Color not fully specified. Using 0s to make complete color")
+      n ++ Seq.fill(3)(0d)
+    } else n
+    Color(patchedNumbers(0), patchedNumbers(1), patchedNumbers(2))
+  }
 
   val Black: Color = Color(0, 0, 0)
   val Red: Color = Color(1, 0, 0)
