@@ -42,7 +42,7 @@
 - kind: mesh
   contents: |
     # object Teapot001
-    # taken from https://groups.csail.mit.edu/graphics/classes/6.837/F03/models/
+    # taken from .... i don't remember
 
     v  7.0000 0.0000 12.0000
     v  4.9700 -4.9700 12.0000
