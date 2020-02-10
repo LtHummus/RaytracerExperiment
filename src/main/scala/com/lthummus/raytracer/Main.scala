@@ -19,12 +19,17 @@ object Main extends App {
     val lines = sceneSource.getLines().mkString("\n")
     sceneSource.close()
 
-    val scene = ParsedScene.fromRawText(lines)
-    if (scene.errored) {
-      Log.warn("Error during parsing")
-      System.exit(1)
+    ParsedScene.fromRawText(lines) match {
+      case Left(errors) =>
+        Log.warn("Errors parsing scene file")
+        errors.foreach(e => Log.warn(e))
+        System.exit(1)
+      case Right(scene) =>
+        renderScene(config, scene)
     }
+  }
 
+  private def renderScene(config: RenderOptions, scene: ParsedScene) = {
     val world = scene.toWorld
     Log.info(s"World created. Contains ${world.objectCount} objects and ${world.lights.size} lights")
 
@@ -38,7 +43,7 @@ object Main extends App {
     config.format match {
       case "png" => ImageIO.write(render.asBufferedImage, "png", config.output.get)
       case "ppm" => val fw = new FileWriter(config.output.get); fw.write(render.asPpm); fw.close()
-      case _     => Log.warn("Invalid file format")
+      case _ => Log.warn("Invalid file format")
     }
 
     Log.info(s"Wrote output ${config.output.get}")

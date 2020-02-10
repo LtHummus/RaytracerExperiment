@@ -6,7 +6,7 @@ import com.lthummus.raytracer.primitive.Color
 import com.lthummus.raytracer.shapes.Shape
 import com.lthummus.raytracer.world.World
 
-case class ParsedScene(objects: Seq[Shape], lights: Seq[PointLight], camera: SimpleCamera, errored: Boolean, worldInfo: Option[WorldInfo]) {
+case class ParsedScene(objects: Seq[Shape], lights: Seq[PointLight], camera: SimpleCamera, worldInfo: Option[WorldInfo]) {
   def toWorld: World = {
     worldInfo match {
       //todo: clean up the logic behind creating...it's because you can't overload methods with default arguments...
@@ -17,13 +17,12 @@ case class ParsedScene(objects: Seq[Shape], lights: Seq[PointLight], camera: Sim
 }
 
 object ParsedScene {
-  def fromRawText(text: String): ParsedScene = {
+  def fromRawText(text: String): Either[Seq[String], ParsedScene] = {
     val builder = new SceneBuilder(text)
 
     ParsedScene.fromBuilder(builder)
   }
 
-  private def fromBuilder(builder: SceneBuilder): ParsedScene = {
-    ParsedScene(builder.shapes.toSeq, builder.lights.toSeq, builder.camera.get, builder.errored, builder.worldInfo)
-  }
+  private def fromBuilder(builder: SceneBuilder): Either[Seq[String], ParsedScene] = builder.asScene
+
 }

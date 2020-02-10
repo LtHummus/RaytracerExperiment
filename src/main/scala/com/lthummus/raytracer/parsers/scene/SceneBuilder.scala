@@ -19,7 +19,7 @@ private[scene] class SceneBuilder(data: String) {
   private[scene] val materials = mutable.HashMap.empty[String, SimpleMaterial]
   private[scene] var camera: Option[SimpleCamera] = None
   private[scene] var lights = mutable.ArrayBuffer.empty[PointLight]
-  private[scene] var errored = false
+  private[scene] val errors = mutable.ArrayBuffer.empty[String]
   private[scene] var worldInfo: Option[WorldInfo] = None
 
   yaml.parser.parse(data) match {
@@ -29,7 +29,7 @@ private[scene] class SceneBuilder(data: String) {
       val everything = c.get.map(SceneInput.decode)
 
       everything.foreach {
-        case Left(error)                 => Log.warn(s"Error: ${error.message} -- ${error.history.mkString(" -> ")}"); errored = true
+        case Left(error)                 => errors += s"${error.getMessage()} ${error.history.mkString(", ")}"
         case Right(sceneObject: Camera)  => camera = Some(sceneObject.asSimpleCamera)
         case Right(primitive: Primitive) => shapes += primitive.asShape(materials)
         case Right(mesh: Mesh)           => shapes += mesh.asShape(materials)
@@ -38,16 +38,20 @@ private[scene] class SceneBuilder(data: String) {
         case Right(world: WorldInfo)     => worldInfo = Some(world)
         case _                           => //nop
       }
+  }
 
-      if (camera.isEmpty) {
-        errored = true
-        Log.warn("No camera defined in file!")
-      }
+  def asScene: Either[Seq[String], ParsedScene] = {
+    if (camera.isEmpty)
+      errors += "No camera defined in scene"
 
-      if (lights.isEmpty) {
-        errored = true
-        Log.warn("No light defined in file!")
-      }
+    if (lights.isEmpty)
+      Log.warn("No lights defined in scene")
+
+    if (errors.isEmpty) {
+      Right(ParsedScene(shapes.toSeq, lights.toSeq, camera.get, worldInfo))
+    } else {
+      Left(errors.toSeq)
+    }
   }
 }
 
