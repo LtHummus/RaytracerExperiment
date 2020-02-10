@@ -3,11 +3,10 @@ package com.lthummus.raytracer.parsers.scene
 import com.lthummus.raytracer.camera.SimpleCamera
 import com.lthummus.raytracer.lights.PointLight
 import com.lthummus.raytracer.material.SimpleMaterial
-import com.lthummus.raytracer.primitive.Color
 import com.lthummus.raytracer.shapes.Shape
-import com.lthummus.raytracer.world.World
 import com.typesafe.scalalogging.Logger
 import io.circe.yaml
+
 
 import scala.collection.mutable
 
@@ -31,13 +30,20 @@ private[scene] class SceneBuilder(data: String) {
       everything.foreach {
         case Left(error)                 => errors += s"${error.getMessage()} ${error.history.mkString(", ")}"
         case Right(sceneObject: Camera)  => camera = Some(sceneObject.asSimpleCamera)
-        case Right(primitive: Primitive) => shapes += primitive.asShape(materials)
-        case Right(mesh: Mesh)           => shapes += mesh.asShape(materials)
+        case Right(primitive: Primitive) => handleParsedItem(primitive)
+        case Right(mesh: Mesh)           => handleParsedItem(mesh)
         case Right(sceneLight: Light)    => lights += sceneLight.asLight
         case Right(material: Material)   => materials.put(material.name, material.asSimpleMaterial)
         case Right(world: WorldInfo)     => worldInfo = Some(world)
         case _                           => //nop
       }
+  }
+
+  private def handleParsedItem(item: Shapeable): Unit = {
+    item.asShape(materials) match {
+      case Right(s)    => shapes += s
+      case Left(error) => errors += error
+    }
   }
 
   def asScene: Either[Seq[String], ParsedScene] = {

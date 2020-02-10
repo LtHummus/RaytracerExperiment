@@ -29,7 +29,7 @@ object Main extends App {
     }
   }
 
-  private def renderScene(config: RenderOptions, scene: ParsedScene) = {
+  private def renderScene(config: RenderOptions, scene: ParsedScene): Unit = {
     val world = scene.toWorld
     Log.info(s"World created. Contains ${world.objectCount} objects and ${world.lights.size} lights")
 

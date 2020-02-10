@@ -14,10 +14,27 @@ import com.typesafe.scalalogging.Logger
 import io.circe.{Decoder, DecodingFailure, Json}
 import io.circe.generic.JsonCodec
 
+import cats.implicits._
+
 import scala.collection.mutable
+import scala.util.Try
 
 sealed trait SceneInput {
   val kind: String
+}
+
+trait Shapeable {
+  protected def getMaterial(name: Option[String], materials: mutable.HashMap[String, SimpleMaterial]): SimpleMaterial = {
+    name match {
+      case None =>
+        SceneInput.Log.warn("No material name specified. Using default material")
+        SimpleMaterial.Default
+      case Some(realMaterialName) =>
+        materials.getOrElse(realMaterialName,  { SceneInput.Log.warn(s"$realMaterialName not found. Using default material"); SimpleMaterial.Default } )
+    }
+  }
+
+  def asShape(materials: mutable.HashMap[String, SimpleMaterial]) : Either[String, Shape]
 }
 
 trait Transformable {
@@ -48,35 +65,32 @@ trait Transformable {
   def asSimpleMaterial: SimpleMaterial = SimpleMaterial(Color(color), ambient, diffuse, specular, shininess, reflective, transparency, refractiveIndex, pattern.flatMap(_.asPattern))
 }
 
-@JsonCodec case class Primitive(kind: String, shape: String, material: Option[String], transforms: Option[Seq[Transform]]) extends SceneInput with Transformable {
+@JsonCodec case class Primitive(kind: String, shape: String, material: Option[String], transforms: Option[Seq[Transform]]) extends SceneInput with Transformable with Shapeable {
   //TODO: this should probably be a level above so we can apply materials properly
-  def asShape(materials: mutable.HashMap[String, SimpleMaterial]): Shape = {
-    val m = (for {
-      realMatName <- material
-      realMaterial <- materials.get(realMatName)
-    } yield realMaterial).getOrElse(SimpleMaterial.Default)
+  override def asShape(materials: mutable.HashMap[String, SimpleMaterial]): Either[String, Shape] = {
+    val m = getMaterial(material, materials)
     shape match {
-      case "sphere"  => Sphere(generateTransform, m)
-      case "cube"    => Cube(generateTransform, m)
-      case "plane"   => Plane(generateTransform, m)
-      case s: String => SceneInput.Log.warn(s"Unknown shape: $s"); ??? //TODO: make optional
+      case "sphere"  => Right(Sphere(generateTransform, m))
+      case "cube"    => Right(Cube(generateTransform, m))
+      case "plane"   => Right(Plane(generateTransform, m))
+      case s: String => Left(s"Unknown shape: $s")
     }
   }
 }
 
-@JsonCodec case class Mesh(kind: String, source: Option[String], contents: Option[String], material: Option[String], transforms: Option[Seq[Transform]]) extends SceneInput with Transformable {
-  def asShape(materials: mutable.HashMap[String, SimpleMaterial]): Shape = {
-    val m = (for {
-      realMatName <- material
-      realMaterial <- materials.get(realMatName)
-    } yield realMaterial).getOrElse(SimpleMaterial.Default)
+@JsonCodec case class Mesh(kind: String, source: Option[String], contents: Option[String], material: Option[String], transforms: Option[Seq[Transform]]) extends SceneInput with Transformable with Shapeable {
+  override def asShape(materials: mutable.HashMap[String, SimpleMaterial]): Either[String, Shape] = {
+    val m = getMaterial(material, materials)
 
     val realContents = (source, contents) match {
-      case (_, Some(content)) => ObjFile.fromRawString(content)
-      case (Some(f), _) => ObjFile.fromFile(new File(f))
-      case _ => SceneInput.Log.warn("Mesh doesn't have contents or path specified"); ???
+      case (_, Some(content)) => Try(ObjFile.fromRawString(content)).toEither.leftMap(_.getMessage)
+      case (Some(f), _) => Try(ObjFile.fromFile(new File(f))).toEither.leftMap(_.getMessage)
+      case _ => Left("Mesh doesn't have contents or path specified")
     }
-    realContents.parentGroup.copy(transformation = generateTransform).setMaterial(m)
+
+    realContents.map { res =>
+      res.parentGroup.copy(transformation = generateTransform).setMaterial(m)
+    }
   }
 }
 @JsonCodec case class Light(kind: String, shape: String, pos: Seq[Double], color: Seq[Double]) extends SceneInput {
