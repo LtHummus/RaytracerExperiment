@@ -8,18 +8,33 @@ import com.typesafe.scalalogging.Logger
 import javax.imageio.ImageIO
 import scopt.OParser
 
+import cats.implicits._
+
+import scala.util.Try
+
 case class RenderOptions(source: Option[File] = None, format: String = "png", output: Option[File] = None, parallel: Boolean = true)
 
 object Main extends App {
 
   private val Log = Logger("Main")
 
-  private def run(config: RenderOptions): Unit = {
-    val sceneSource = scala.io.Source.fromFile(config.source.get)
-    val lines = sceneSource.getLines().mkString("\n")
-    sceneSource.close()
+  private def readSourceFile(f: File): Either[Seq[String], String] = {
+    Try {
+      val sceneSource = scala.io.Source.fromFile(f)
+      val lines = sceneSource.getLines().mkString("\n")
+      sceneSource.close()
 
-    ParsedScene.fromRawText(lines) match {
+      lines
+    }.toEither.leftMap(t => Seq(s"${t.getClass.getSimpleName} - ${t.getMessage}"))
+  }
+
+  private def run(config: RenderOptions): Unit = {
+    val parseResult = for {
+      sourceContents <- readSourceFile(config.source.get)
+      parsedScene    <- ParsedScene.fromRawText(sourceContents)
+    } yield parsedScene
+
+    parseResult match {
       case Left(errors) =>
         Log.warn("Errors parsing scene file")
         errors.foreach(e => Log.warn(e))

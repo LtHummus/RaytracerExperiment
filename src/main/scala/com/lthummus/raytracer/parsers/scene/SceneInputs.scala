@@ -83,8 +83,8 @@ trait Transformable {
     val m = getMaterial(material, materials)
 
     val realContents = (source, contents) match {
-      case (_, Some(content)) => Try(ObjFile.fromRawString(content)).toEither.leftMap(_.getMessage)
-      case (Some(f), _) => Try(ObjFile.fromFile(new File(f))).toEither.leftMap(_.getMessage)
+      case (_, Some(content)) => Try(ObjFile.fromRawString(content)).toEither.leftMap(t => s"${t.getClass.getSimpleName} -- ${t.getMessage}")
+      case (Some(f), _) => Try(ObjFile.fromFile(new File(f))).toEither.leftMap(t => s"${t.getClass.getSimpleName} -- ${t.getMessage}")
       case _ => Left("Mesh doesn't have contents or path specified")
     }
 
